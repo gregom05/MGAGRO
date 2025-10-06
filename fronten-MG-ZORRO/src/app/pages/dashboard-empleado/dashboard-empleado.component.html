@@ -1,0 +1,64 @@
+<div class="dashboard-container">
+  <div class="welcome-header">
+    <h1>¡Bienvenido, {{ nombreUsuario }}!</h1>
+    <p>Panel de información general</p>
+  </div>
+
+  <nz-spin [nzSpinning]="loading" nzTip="Cargando estadísticas...">
+    <div nz-row [nzGutter]="[24, 24]">
+      <!-- Card: Empleados Activos -->
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="12">
+        <nz-card class="stat-card employees-card">
+          <div class="stat-content">
+            <div class="stat-icon">
+              <span nz-icon nzType="team" nzTheme="outline"></span>
+            </div>
+            <div class="stat-info">
+              <nz-statistic 
+                [nzValue]="empleadosActivos" 
+                [nzTitle]="'Empleados Activos'"
+              >
+              </nz-statistic>
+              <p class="stat-description">Total de empleados activos en el sistema</p>
+            </div>
+          </div>
+        </nz-card>
+      </div>
+
+      <!-- Card: Mis Actividades -->
+      <div nz-col [nzXs]="24" [nzSm]="12" [nzMd]="12" [nzLg]="12">
+        <nz-card class="stat-card activities-card">
+          <div class="stat-content">
+            <div class="stat-icon">
+              <span nz-icon nzType="calendar" nzTheme="outline"></span>
+            </div>
+            <div class="stat-info">
+              <nz-statistic 
+                [nzValue]="totalActividades" 
+                [nzTitle]="'Mis Actividades'"
+              >
+              </nz-statistic>
+              <p class="stat-description">Total de actividades registradas</p>
+            </div>
+          </div>
+        </nz-card>
+      </div>
+    </div>
+
+    <!-- Información adicional -->
+    <div class="info-section">
+      <nz-card nzTitle="Información del Sistema">
+        <div class="info-content">
+          <div class="info-item">
+            <span nz-icon nzType="calendar" nzTheme="outline"></span>
+            <span><strong>Fecha:</strong> {{ today | date: 'dd/MM/yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span nz-icon nzType="clock-circle" nzTheme="outline"></span>
+            <span><strong>Hora:</strong> {{ today | date: 'HH:mm:ss' }}</span>
+          </div>
+        </div>
+      </nz-card>
+    </div>
+  </nz-spin>
+</div>

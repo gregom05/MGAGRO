@@ -1,0 +1,256 @@
+<div class="movimientos-container">
+  <div class="header">
+    <h2>Movimientos de Inventario</h2>
+    <button nz-button nzType="primary" (click)="showModal()">
+      <span nz-icon nzType="plus"></span>
+      Registrar Movimiento
+    </button>
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <div class="filters-container" style="margin-bottom: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+      <div style="flex: 1; min-width: 250px;">
+        <nz-input-group [nzPrefix]="prefixIconSearch">
+          <input 
+            type="text" 
+            nz-input 
+            placeholder="Buscar por código, nombre, motivo o usuario..." 
+            [(ngModel)]="searchText"
+            (ngModelChange)="onSearch()"
+          />
+        </nz-input-group>
+        <ng-template #prefixIconSearch>
+          <span nz-icon nzType="search"></span>
+        </ng-template>
+      </div>
+      
+      <div style="min-width: 250px;">
+        <nz-select
+          [(ngModel)]="articuloFiltro"
+          nzPlaceHolder="Filtrar por artículo"
+          nzShowSearch
+          nzAllowClear
+          style="width: 100%;"
+          (ngModelChange)="onArticuloFiltroChange()"
+        >
+          <nz-option 
+            *ngFor="let articulo of articulos" 
+            [nzValue]="articulo.id!" 
+            [nzLabel]="articulo.codigo + ' - ' + articulo.nombre"
+          ></nz-option>
+        </nz-select>
+      </div>
+
+      <!-- Fecha desde -->
+      <div style="min-width: 160px;">
+        <input 
+          type="date" 
+          nz-input 
+          placeholder="Fecha desde"
+          [(ngModel)]="fechaDesde"
+          (ngModelChange)="onFechaChange()"
+          title="Fecha desde"
+        />
+      </div>
+
+      <!-- Fecha hasta -->
+      <div style="min-width: 160px;">
+        <input 
+          type="date" 
+          nz-input 
+          placeholder="Fecha hasta"
+          [(ngModel)]="fechaHasta"
+          (ngModelChange)="onFechaChange()"
+          title="Fecha hasta"
+        />
+      </div>
+
+      <button 
+        nz-button 
+        nzType="default" 
+        (click)="limpiarFiltros()"
+        [disabled]="!searchText && !articuloFiltro && !fechaDesde && !fechaHasta"
+      >
+        <span nz-icon nzType="clear"></span>
+        Limpiar
+      </button>
+
+      <div style="color: #666; font-size: 13px;">
+        <strong>{{ movimientosFiltrados.length }}</strong> de <strong>{{ movimientos.length }}</strong> movimientos
+      </div>
+    </div>
+  </div>
+
+  <nz-table
+    #movimientosTable
+    [nzData]="movimientosFiltrados"
+    [nzLoading]="loading"
+    [nzPageSize]="10"
+    [nzShowSizeChanger]="true"
+  >
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Artículo</th>
+        <th>Tipo</th>
+        <th>Cantidad</th>
+        <th>Stock Anterior</th>
+        <th>Stock Nuevo</th>
+        <th>Motivo</th>
+        <th>Usuario</th>
+        <th *ngIf="esAdmin()" nzWidth="100px">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let movimiento of movimientosTable.data">
+        <td>{{ movimiento.fecha | date: 'dd/MM/yyyy HH:mm' }}</td>
+        <td>
+          {{ movimiento.codigo && movimiento.nombre ? movimiento.codigo + ' - ' + movimiento.nombre : getNombreArticulo(movimiento.articulo_id) }}
+        </td>
+        <td>
+          <nz-tag [nzColor]="getTipoColor(movimiento.tipo)">
+            {{ movimiento.tipo.toUpperCase() }}
+          </nz-tag>
+        </td>
+        <td>
+          <strong [style.color]="movimiento.tipo === 'entrada' ? 'green' : 'red'">
+            {{ movimiento.tipo === 'entrada' ? '+' : '-' }}{{ movimiento.cantidad }} {{ movimiento.unidad_medida || '' }}
+          </strong>
+        </td>
+        <td>{{ movimiento.stock_anterior }}</td>
+        <td>{{ movimiento.stock_nuevo }}</td>
+        <td>{{ movimiento.motivo }}</td>
+        <td>{{ movimiento.usuario_nombre || '-' }}</td>
+        <td *ngIf="esAdmin()">
+          <button 
+            nz-button 
+            nzType="text" 
+            nzDanger
+            nz-tooltip="Eliminar movimiento"
+            (click)="confirmarEliminar(movimiento)"
+            [disabled]="esUltimoMovimiento(movimiento)"
+          >
+            <span nz-icon nzType="delete" nzTheme="outline"></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<!-- Modal para Registrar Movimiento -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  nzTitle="Registrar Movimiento de Inventario"
+  [nzWidth]="600"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  nzOkText="Registrar"
+  nzCancelText="Cancelar"
+>
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical">
+      <nz-form-item>
+        <nz-form-label nzRequired>Artículo</nz-form-label>
+        <nz-form-control>
+          <nz-select
+            [(ngModel)]="currentMovimiento.articulo_id"
+            name="articulo_id"
+            nzPlaceHolder="Seleccione un artículo"
+            nzShowSearch
+            style="width: 100%;"
+            (ngModelChange)="onArticuloChange($event)"
+          >
+            <nz-option
+              *ngFor="let articulo of articulos"
+              [nzValue]="articulo.id!"
+              [nzLabel]="articulo.codigo + ' - ' + articulo.nombre + ' (Stock: ' + articulo.stock_actual + ')'"
+            ></nz-option>
+          </nz-select>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Información del artículo seleccionado -->
+      <div *ngIf="articuloSeleccionado" style="background: #f0f2f5; padding: 12px; border-radius: 4px; margin-bottom: 16px;">
+        <div><strong>Stock Actual:</strong> {{ articuloSeleccionado.stock_actual }} {{ articuloSeleccionado.unidad_medida }}</div>
+        <div><strong>Stock Mínimo:</strong> {{ articuloSeleccionado.stock_minimo }} {{ articuloSeleccionado.unidad_medida }}</div>
+        <div><strong>Precio:</strong> {{ articuloSeleccionado.precio_unitario | currency: 'USD':'symbol':'1.2-2' }}</div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Tipo de Movimiento</nz-form-label>
+        <nz-form-control>
+          <nz-radio-group [(ngModel)]="currentMovimiento.tipo" name="tipo">
+            <label nz-radio nzValue="entrada">
+              <span nz-icon nzType="arrow-down" style="color: green;"></span>
+              Entrada (Agregar stock)
+            </label>
+            <label nz-radio nzValue="salida">
+              <span nz-icon nzType="arrow-up" style="color: red;"></span>
+              Salida (Descontar stock)
+            </label>
+            <!-- Solo admin y gerente pueden usar ajuste -->
+            <label *ngIf="puedeUsarAjuste()" nz-radio nzValue="ajuste">
+              <span nz-icon nzType="swap" style="color: blue;"></span>
+              Ajuste (Solo Admin/Gerente)
+            </label>
+          </nz-radio-group>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Cantidad</nz-form-label>
+        <nz-form-control>
+          <nz-input-number
+            [(ngModel)]="currentMovimiento.cantidad"
+            name="cantidad"
+            [nzMin]="0"
+            [nzStep]="1"
+            style="width: 100%;"
+            [nzPlaceHolder]="'Cantidad a ' + (currentMovimiento.tipo === 'entrada' ? 'agregar' : currentMovimiento.tipo === 'salida' ? 'descontar' : 'ajustar')"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Motivo</nz-form-label>
+        <nz-form-control>
+          <textarea
+            nz-input
+            [(ngModel)]="currentMovimiento.motivo"
+            name="motivo"
+            [placeholder]="'Motivo del movimiento de ' + currentMovimiento.tipo"
+            [nzAutosize]="{ minRows: 3, maxRows: 5 }"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Vista previa del resultado -->
+      <div *ngIf="articuloSeleccionado && currentMovimiento.cantidad > 0" style="background: #e6f7ff; padding: 12px; border-radius: 4px; border: 1px solid #91d5ff;">
+        <div style="font-weight: 600; margin-bottom: 8px;">
+          <span nz-icon nzType="info-circle"></span> Vista Previa:
+        </div>
+        <div>Stock actual: <strong>{{ articuloSeleccionado.stock_actual }}</strong></div>
+        <div *ngIf="currentMovimiento.tipo === 'entrada'">
+          Se agregará: 
+          <strong style="color: green">+{{ currentMovimiento.cantidad }}</strong>
+        </div>
+        <div *ngIf="currentMovimiento.tipo === 'salida'">
+          Se descontará: 
+          <strong style="color: red">-{{ currentMovimiento.cantidad }}</strong>
+        </div>
+        <div *ngIf="currentMovimiento.tipo === 'ajuste'">
+          Se ajustará a: 
+          <strong style="color: blue">{{ currentMovimiento.cantidad }}</strong>
+        </div>
+        <div>
+          Stock resultante: 
+          <strong [style.color]="getColorStockResultante()">
+            {{ calcularStockResultante() }}
+          </strong>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

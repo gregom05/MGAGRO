@@ -1,0 +1,254 @@
+<nz-layout class="main-layout">
+  <!-- Header moderno -->
+  <nz-header class="modern-header">
+    <div class="header-left">
+      <div class="brand">
+        <img src="assets/logo.png" alt="Logo" class="brand-logo" />
+        <span class="brand-name">MG AGRO</span>
+        <span class="brand-tagline">Sistema de Gestión</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <!-- Notificaciones -->
+      <nz-badge [nzCount]="contadorAlertas" [nzShowZero]="false" nzDot="false">
+        <button nz-button nzType="text" class="header-btn" (click)="abrirNotificaciones()">
+          <i nz-icon nzType="bell" nzTheme="outline" style="font-size: 20px;"></i>
+        </button>
+      </nz-badge>
+      
+      <div class="user-section" nz-dropdown [nzDropdownMenu]="menu" nzTrigger="click" style="cursor: pointer;">
+        <nz-avatar nzIcon="user" [nzSize]="36" style="background-color: #52c41a;"></nz-avatar>
+        <span class="user-name">{{ nombreUsuario }}</span>
+        <i nz-icon nzType="down" style="margin-left: 8px; color: #fff;"></i>
+      </div>
+      <nz-dropdown-menu #menu="nzDropdownMenu">
+        <ul nz-menu>
+          <li nz-menu-item (click)="abrirEditarCredenciales()">
+            <i nz-icon nzType="key" nzTheme="outline"></i>
+            <span>Editar Credenciales</span>
+          </li>
+        </ul>
+      </nz-dropdown-menu>
+      
+      <button nz-button nzType="text" class="logout-btn" (click)="onLogout()">
+        <i nz-icon nzType="logout" style="color: #fff;"></i>
+        <span>Salir</span>
+      </button>
+    </div>
+  </nz-header>
+
+  <nz-layout>
+    <!-- Sidebar moderno -->
+    <nz-sider 
+      nzCollapsible 
+      [(nzCollapsed)]="isCollapsed"
+      [nzWidth]="240" 
+      [nzCollapsedWidth]="80"
+      class="modern-sider"
+    >
+      <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" class="modern-menu">
+        
+        <!-- Inicio -->
+        <li nz-menu-item nzMatchRouter [nzSelected]="false" 
+            [routerLink]="userRol === 'empleado' ? '/dashboard-empleado' : '/welcome'" 
+            routerLinkActive="ant-menu-item-selected">
+          <i nz-icon nzType="home" nzTheme="outline"></i>
+          <span>Inicio</span>
+        </li>
+
+        <!-- Recursos Humanos -->
+        <li nz-submenu nzTitle="Recursos Humanos" nzIcon="team">
+          <ul>
+            <!-- Solo admin y gerente pueden ver empleados -->
+            <li *ngIf="puedeVerEmpleados()" nz-menu-item routerLink="/empleados" routerLinkActive="ant-menu-item-selected">
+              <i nz-icon nzType="user" nzTheme="outline"></i>
+              <span>Empleados</span>
+            </li>
+            <li *ngIf="puedeVerActividades()" nz-menu-item routerLink="/actividades" routerLinkActive="ant-menu-item-selected">
+              <i nz-icon nzType="calendar" nzTheme="outline"></i>
+              <span>Actividades</span>
+            </li>
+          </ul>
+        </li>
+
+        <!-- Inventario -->
+        <li nz-submenu nzTitle="Inventario" nzIcon="database">
+          <ul>
+            <li nz-menu-item routerLink="/articulos" routerLinkActive="ant-menu-item-selected">
+              <i nz-icon nzType="inbox" nzTheme="outline"></i>
+              <span>Artículos</span>
+            </li>
+            <li nz-menu-item routerLink="/movimientos" routerLinkActive="ant-menu-item-selected">
+              <i nz-icon nzType="swap" nzTheme="outline"></i>
+              <span>Movimientos</span>
+            </li>
+          </ul>
+        </li>
+
+      </ul>
+    </nz-sider>
+
+    <!-- Contenido principal -->
+    <nz-layout class="inner-layout" [class.collapsed]="isCollapsed">
+      <nz-content class="modern-content">
+        <div class="content-container">
+          <router-outlet></router-outlet>
+        </div>
+      </nz-content>
+    </nz-layout>
+  </nz-layout>
+</nz-layout>
+
+<!-- Drawer de Notificaciones -->
+<nz-drawer
+  [nzVisible]="drawerVisible"
+  [nzWidth]="400"
+  nzPlacement="right"
+  nzTitle="Alertas de Stock"
+  (nzOnClose)="cerrarNotificaciones()"
+>
+  <ng-container *nzDrawerContent>
+    <div *ngIf="alertas.length === 0" class="empty-alerts">
+      <i nz-icon nzType="check-circle" nzTheme="outline" style="font-size: 48px; color: #52c41a;"></i>
+      <p style="margin-top: 16px; color: #8c8c8c;">No hay alertas de stock</p>
+    </div>
+
+    <nz-list [nzDataSource]="alertas" [nzRenderItem]="alertItem">
+      <ng-template #alertItem let-alerta>
+        <nz-list-item>
+          <nz-alert
+            [nzType]="getAlertType(alerta.nivel)"
+            [nzMessage]="alerta.nombre"
+            [nzDescription]="alertDescription"
+            nzShowIcon
+          >
+            <ng-template #alertDescription>
+              <div style="font-size: 12px;">
+                <p><strong>Código:</strong> {{ alerta.codigo }}</p>
+                <p><strong>Stock Actual:</strong> {{ alerta.stock_actual }}</p>
+                <p><strong>Stock Mínimo:</strong> {{ alerta.stock_minimo }}</p>
+                <p style="margin-top: 8px; color: #ff4d4f;" *ngIf="alerta.nivel === 'critico'">
+                  ⚠️ CRÍTICO: Requiere atención inmediata
+                </p>
+                <p style="margin-top: 8px; color: #faad14;" *ngIf="alerta.nivel === 'bajo'">
+                  ⚠️ Stock por debajo del mínimo
+                </p>
+                <button 
+                  nz-button 
+                  nzType="primary" 
+                  nzSize="small" 
+                  style="margin-top: 8px;"
+                  (click)="irAArticulo(alerta.id)"
+                >
+                  Ver Artículo
+                </button>
+              </div>
+            </ng-template>
+          </nz-alert>
+        </nz-list-item>
+      </ng-template>
+    </nz-list>
+  </ng-container>
+</nz-drawer>
+
+<!-- Modal de Editar Credenciales -->
+<nz-modal
+  [(nzVisible)]="modalCredencialesVisible"
+  nzTitle="Editar Credenciales"
+  (nzOnCancel)="cerrarModalCredenciales()"
+  [nzFooter]="null"
+  nzWidth="500px"
+>
+  <ng-container *nzModalContent>
+    <form nz-form [nzLayout]="'vertical'" (ngSubmit)="guardarCredenciales()">
+      
+      <nz-form-item>
+        <nz-form-label nzRequired>Contraseña Actual</nz-form-label>
+        <nz-form-control nzErrorTip="Ingrese su contraseña actual">
+          <nz-input-group [nzSuffix]="suffixActual">
+            <input 
+              nz-input 
+              type="password" 
+              [(ngModel)]="credenciales.passwordActual" 
+              name="passwordActual"
+              placeholder="Contraseña actual"
+              required
+              [type]="showPasswordActual ? 'text' : 'password'"
+            />
+          </nz-input-group>
+          <ng-template #suffixActual>
+            <i nz-icon 
+               [nzType]="showPasswordActual ? 'eye-invisible' : 'eye'" 
+               (click)="showPasswordActual = !showPasswordActual" 
+               class="cursor-pointer">
+            </i>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Nueva Contraseña</nz-form-label>
+        <nz-form-control nzErrorTip="Ingrese una contraseña de al menos 6 caracteres">
+          <nz-input-group [nzSuffix]="suffixNueva">
+            <input 
+              nz-input 
+              type="password" 
+              [(ngModel)]="credenciales.passwordNueva" 
+              name="passwordNueva"
+              placeholder="Nueva contraseña"
+              required
+              minlength="6"
+              [type]="showPasswordNueva ? 'text' : 'password'"
+            />
+          </nz-input-group>
+          <ng-template #suffixNueva>
+            <i nz-icon 
+               [nzType]="showPasswordNueva ? 'eye-invisible' : 'eye'" 
+               (click)="showPasswordNueva = !showPasswordNueva" 
+               class="cursor-pointer">
+            </i>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Confirmar Nueva Contraseña</nz-form-label>
+        <nz-form-control nzErrorTip="Las contraseñas deben coincidir">
+          <nz-input-group [nzSuffix]="suffixConfirmar">
+            <input 
+              nz-input 
+              type="password" 
+              [(ngModel)]="credenciales.passwordConfirmar" 
+              name="passwordConfirmar"
+              placeholder="Confirmar nueva contraseña"
+              required
+              [type]="showPasswordConfirmar ? 'text' : 'password'"
+            />
+          </nz-input-group>
+          <ng-template #suffixConfirmar>
+            <i nz-icon 
+               [nzType]="showPasswordConfirmar ? 'eye-invisible' : 'eye'" 
+               (click)="showPasswordConfirmar = !showPasswordConfirmar" 
+               class="cursor-pointer">
+            </i>
+          </ng-template>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div *ngIf="errorCredenciales" style="margin-bottom: 16px;">
+        <nz-alert nzType="error" [nzMessage]="errorCredenciales" nzShowIcon></nz-alert>
+      </div>
+
+      <nz-form-item>
+        <nz-form-control>
+          <button nz-button nzType="primary" nzBlock type="submit" [nzLoading]="guardandoCredenciales">
+            Guardar Cambios
+          </button>
+          <button nz-button nzType="default" nzBlock type="button" (click)="cerrarModalCredenciales()" style="margin-top: 8px;">
+            Cancelar
+          </button>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

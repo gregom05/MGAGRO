@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "module": "commonjs",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true, // Asegúrate de que esté habilitado
+    "skipLibCheck": true
+  },
+  "include": ["src/**/*"], // Incluye todos los archivos en la carpeta src
+  "exclude": ["node_modules"] // Excluye la carpeta node_modules
+}

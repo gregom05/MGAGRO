@@ -1,0 +1,31 @@
+# Comandos para Subir a GitHub
+
+# EJECUTAR ESTOS COMANDOS UNO POR UNO EN PowerShell
+
+# 1. Navegar a la carpeta del proyecto
+cd "C:\Users\mgregorutt\Desktop\MG AGRO"
+
+# 2. Inicializar Git (si no está inicializado)
+git init
+
+# 3. Agregar todos los archivos
+git add .
+
+# 4. Hacer el primer commit
+git commit -m "Initial commit - MG AGRO Sistema Completo con Dashboard y Permisos"
+
+# 5. ANTES DE CONTINUAR: Ve a GitHub.com y crea un nuevo repositorio
+#    - Nombre sugerido: mg-agro-sistema
+#    - NO inicialices con README
+#    - Copia la URL del repositorio
+
+# 6. Conectar con GitHub (REEMPLAZA con tu URL)
+git remote add origin https://github.com/TU_USUARIO/mg-agro-sistema.git
+
+# 7. Cambiar a rama main
+git branch -M main
+
+# 8. Subir todo a GitHub
+git push -u origin main
+
+# ✅ LISTO! Tu código ya está en GitHub

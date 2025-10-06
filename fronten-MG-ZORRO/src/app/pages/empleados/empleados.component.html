@@ -1,0 +1,216 @@
+<div class="empleados-container">
+  <div class="header">
+    <h2>Gestión de Empleados</h2>
+    <button nz-button nzType="primary" (click)="showModal()">
+      <span nz-icon nzType="plus"></span>
+      Nuevo Empleado
+    </button>
+  </div>
+
+  <nz-table
+    #empleadosTable
+    [nzData]="empleados"
+    [nzLoading]="loading"
+    [nzPageSize]="10"
+    [nzShowSizeChanger]="true"
+  >
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Documento</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Puesto</th>
+        <th>Salario</th>
+        <th>Fecha Ingreso</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let empleado of empleadosTable.data">
+        <td>{{ empleado.nombre }}</td>
+        <td>{{ empleado.apellido }}</td>
+        <td>{{ empleado.documento }}</td>
+        <td>{{ empleado.telefono || '-' }}</td>
+        <td>{{ empleado.email || '-' }}</td>
+        <td>{{ empleado.puesto }}</td>
+        <td>{{ empleado.salario | currency: 'USD':'symbol':'1.2-2' }}</td>
+        <td>{{ empleado.fecha_ingreso | date: 'dd/MM/yyyy' }}</td>
+        <td>
+          <nz-tag [nzColor]="empleado.activo ? 'green' : 'red'">
+            {{ empleado.activo ? 'Activo' : 'Inactivo' }}
+          </nz-tag>
+        </td>
+        <td>
+          <button nz-button nzType="default" nzSize="small" (click)="showModal(empleado)" style="margin-right: 8px;">
+            <span nz-icon nzType="edit"></span>
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            nzSize="small"
+            nz-popconfirm
+            nzPopconfirmTitle="¿Está seguro de eliminar este empleado?"
+            nzOkText="Sí"
+            nzCancelText="No"
+            (nzOnConfirm)="eliminarEmpleado(empleado.id!)"
+          >
+            <span nz-icon nzType="delete"></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<!-- Modal para Crear/Editar Empleado -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Editar Empleado' : 'Nuevo Empleado'"
+  [nzWidth]="700"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkText]="isEditMode ? 'Actualizar' : 'Crear'"
+  nzCancelText="Cancelar"
+>
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Nombre</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentEmpleado.nombre" name="nombre" placeholder="Nombre del empleado" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Apellido</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentEmpleado.apellido" name="apellido" placeholder="Apellido" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Documento</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentEmpleado.documento" name="documento" placeholder="Número de documento" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label>Teléfono</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentEmpleado.telefono" name="telefono" placeholder="Teléfono" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label [nzRequired]="!isEditMode">Email</nz-form-label>
+        <nz-form-control>
+          <input nz-input [(ngModel)]="currentEmpleado.email" name="email" type="email" placeholder="email@ejemplo.com" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <!-- Campo de contraseña solo al crear -->
+      <nz-form-item *ngIf="!isEditMode">
+        <nz-form-label nzRequired>Contraseña</nz-form-label>
+        <nz-form-control [nzErrorTip]="passwordError">
+          <nz-input-group [nzPrefix]="prefixLock" [nzSuffix]="suffixEye">
+            <input 
+              [type]="passwordVisible ? 'text' : 'password'" 
+              nz-input 
+              [(ngModel)]="currentEmpleado.password" 
+              name="password" 
+              placeholder="Contraseña para acceso al sistema"
+              minlength="6"
+            />
+          </nz-input-group>
+          <ng-template #prefixLock>
+            <span nz-icon nzType="lock"></span>
+          </ng-template>
+          <ng-template #suffixEye>
+            <span 
+              nz-icon 
+              [nzType]="passwordVisible ? 'eye-invisible' : 'eye'" 
+              (click)="passwordVisible = !passwordVisible"
+              style="cursor: pointer;"
+            ></span>
+          </ng-template>
+          <ng-template #passwordError>La contraseña debe tener al menos 6 caracteres</ng-template>
+        </nz-form-control>
+        <div style="margin-top: 8px; padding: 8px; background: #e6f7ff; border-radius: 4px; border-left: 3px solid #1890ff;">
+          <small style="color: #0050b3;">
+            <span nz-icon nzType="info-circle"></span>
+            Se creará automáticamente un usuario con este email y contraseña para acceso al sistema
+          </small>
+        </div>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Dirección</nz-form-label>
+        <nz-form-control>
+          <input nz-input [(ngModel)]="currentEmpleado.direccion" name="direccion" placeholder="Dirección completa" />
+        </nz-form-control>
+      </nz-form-item>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Fecha de Ingreso</nz-form-label>
+            <nz-form-control>
+              <input nz-input type="date" [(ngModel)]="currentEmpleado.fecha_ingreso" name="fecha_ingreso" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Puesto</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentEmpleado.puesto" name="puesto" placeholder="Cargo o puesto" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Salario</nz-form-label>
+            <nz-form-control>
+              <nz-input-number
+                [(ngModel)]="currentEmpleado.salario"
+                name="salario"
+                [nzMin]="0"
+                [nzStep]="100"
+                [nzFormatter]="formatterDollar"
+                [nzParser]="parserDollar"
+                style="width: 100%;"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label>Estado</nz-form-label>
+            <nz-form-control>
+              <nz-switch [(ngModel)]="currentEmpleado.activo" name="activo"></nz-switch>
+              <span style="margin-left: 8px;">{{ currentEmpleado.activo ? 'Activo' : 'Inactivo' }}</span>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+    </form>
+  </ng-container>
+</nz-modal>

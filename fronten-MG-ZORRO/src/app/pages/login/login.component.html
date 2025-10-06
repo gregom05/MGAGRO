@@ -1,0 +1,33 @@
+<div class="login-background">
+  <div class="login-content px-4">
+    <nz-card class="w-full max-w-md" [nzBodyStyle]="{padding: '32px 24px'}" nzBordered>
+      <form (ngSubmit)="onSubmit()" autocomplete="on">
+        <h2 class="text-2xl font-bold text-center mb-8 text-gray-900">Iniciar Sesión</h2>
+        <div *ngIf="loginError" class="text-red-600 text-sm mb-4 text-center">
+          {{ loginError }}
+        </div>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24" nzFor="email">Correo electrónico</nz-form-label>
+          <nz-form-control [nzSpan]="24">
+            <input nz-input id="email" [(ngModel)]="email" name="email" type="text" placeholder="Correo electrónico" required autocomplete="username" data-testid="login-email" />
+          </nz-form-control>
+        </nz-form-item>
+        <nz-form-item>
+          <nz-form-label [nzSpan]="24" nzFor="password">Contraseña</nz-form-label>
+          <nz-form-control [nzSpan]="24">
+            <nz-input-group [nzSuffix]="suffixIcon">
+              <input nz-input id="password" [(ngModel)]="password" name="password" [type]="showPassword ? 'text' : 'password'" placeholder="Contraseña" required autocomplete="current-password" data-testid="login-password" />
+            </nz-input-group>
+            <ng-template #suffixIcon>
+              <i nz-icon [nzType]="showPassword ? 'eye-invisible' : 'eye'" (click)="showPassword = !showPassword" class="cursor-pointer"></i>
+            </ng-template>
+          </nz-form-control>
+        </nz-form-item>
+        <button nz-button nzType="primary" nzBlock type="submit" [disabled]="isLoading" data-testid="login-submit" style="margin-top: 16px;">
+          <ng-container *ngIf="!isLoading">Iniciar sesión</ng-container>
+          <ng-container *ngIf="isLoading">Cargando...</ng-container>
+        </button>
+      </form>
+    </nz-card>
+  </div>
+</div>

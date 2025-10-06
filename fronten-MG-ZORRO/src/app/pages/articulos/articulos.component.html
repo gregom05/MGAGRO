@@ -1,0 +1,239 @@
+<div class="articulos-container">
+  <div class="header">
+    <h2>{{ puedeGestionarArticulos() ? 'Gestión de Artículos / Inventario' : 'Consulta de Inventario' }}</h2>
+    <button *ngIf="puedeGestionarArticulos()" nz-button nzType="primary" (click)="showModal()">
+      <span nz-icon nzType="plus"></span>
+      Nuevo Artículo
+    </button>
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <div class="filters-container" style="margin-bottom: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+      <div style="flex: 1; min-width: 250px;">
+        <nz-input-group [nzPrefix]="prefixIconSearch">
+          <input 
+            type="text" 
+            nz-input 
+            placeholder="Buscar por código, nombre, categoría o descripción..." 
+            [(ngModel)]="searchText"
+            (ngModelChange)="onSearch()"
+          />
+        </nz-input-group>
+        <ng-template #prefixIconSearch>
+          <span nz-icon nzType="search"></span>
+        </ng-template>
+      </div>
+      
+      <div style="min-width: 200px;">
+        <nz-select
+          [(ngModel)]="stockFilter"
+          nzPlaceHolder="Estado de stock"
+          style="width: 100%;"
+          (ngModelChange)="onStockFilterChange()"
+        >
+          <nz-option nzValue="todos" nzLabel="Todos"></nz-option>
+          <nz-option nzValue="bajo" nzLabel="Stock Bajo"></nz-option>
+          <nz-option nzValue="normal" nzLabel="Stock Normal"></nz-option>
+        </nz-select>
+      </div>
+
+      <button 
+        nz-button 
+        nzType="default" 
+        (click)="limpiarFiltros()"
+        [disabled]="!searchText && stockFilter === 'todos'"
+      >
+        <span nz-icon nzType="clear"></span>
+        Limpiar
+      </button>
+
+      <div style="color: #666; font-size: 13px;">
+        <strong>{{ articulosFiltrados.length }}</strong> de <strong>{{ articulos.length }}</strong> artículos
+      </div>
+    </div>
+  </div>
+
+  <nz-table
+    #articulosTable
+    [nzData]="articulosFiltrados"
+    [nzLoading]="loading"
+    [nzPageSize]="10"
+    [nzShowSizeChanger]="true"
+  >
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Categoría</th>
+        <th>Unidad</th>
+        <th>Stock Actual</th>
+        <th>Stock Mínimo</th>
+        <th>Estado Stock</th>
+        <th>Precio</th>
+        <th>Estado</th>
+        <th *ngIf="puedeGestionarArticulos()">Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let articulo of articulosTable.data">
+        <td><strong>{{ articulo.codigo }}</strong></td>
+        <td>{{ articulo.nombre }}</td>
+        <td>{{ articulo.categoria }}</td>
+        <td>{{ articulo.unidad_medida }}</td>
+        <td>{{ articulo.stock_actual }}</td>
+        <td>{{ articulo.stock_minimo }}</td>
+        <td>
+          <nz-tag [nzColor]="getStockStatus(articulo).color">
+            {{ getStockStatus(articulo).text }}
+          </nz-tag>
+        </td>
+        <td>{{ articulo.precio_unitario | currency: 'USD':'symbol':'1.2-2' }}</td>
+        <td>
+          <nz-tag [nzColor]="articulo.activo ? 'green' : 'red'">
+            {{ articulo.activo ? 'Activo' : 'Inactivo' }}
+          </nz-tag>
+        </td>
+        <td *ngIf="puedeGestionarArticulos()">
+          <button nz-button nzType="default" nzSize="small" (click)="showModal(articulo)" style="margin-right: 8px;">
+            <span nz-icon nzType="edit"></span>
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            nzSize="small"
+            nz-popconfirm
+            nzPopconfirmTitle="¿Está seguro de eliminar este artículo?"
+            nzOkText="Sí"
+            nzCancelText="No"
+            (nzOnConfirm)="eliminarArticulo(articulo.id!)"
+          >
+            <span nz-icon nzType="delete"></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<!-- Modal para Crear/Editar Artículo -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Editar Artículo' : 'Nuevo Artículo'"
+  [nzWidth]="700"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkText]="isEditMode ? 'Actualizar' : 'Crear'"
+  nzCancelText="Cancelar"
+>
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Código</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentArticulo.codigo" name="codigo" placeholder="Código del artículo" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Nombre</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentArticulo.nombre" name="nombre" placeholder="Nombre del artículo" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label>Descripción</nz-form-label>
+        <nz-form-control>
+          <textarea
+            nz-input
+            [(ngModel)]="currentArticulo.descripcion"
+            name="descripcion"
+            placeholder="Descripción del artículo"
+            [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Categoría</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentArticulo.categoria" name="categoria" placeholder="Ej: Fertilizantes, Herramientas" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Unidad de Medida</nz-form-label>
+            <nz-form-control>
+              <input nz-input [(ngModel)]="currentArticulo.unidad_medida" name="unidad_medida" placeholder="Ej: kg, unidad, litro" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="8">
+          <nz-form-item>
+            <nz-form-label>Stock Actual</nz-form-label>
+            <nz-form-control>
+              <nz-input-number
+                [(ngModel)]="currentArticulo.stock_actual"
+                name="stock_actual"
+                [nzMin]="0"
+                [nzStep]="1"
+                style="width: 100%;"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="8">
+          <nz-form-item>
+            <nz-form-label nzRequired>Stock Mínimo</nz-form-label>
+            <nz-form-control>
+              <nz-input-number
+                [(ngModel)]="currentArticulo.stock_minimo"
+                name="stock_minimo"
+                [nzMin]="0"
+                [nzStep]="1"
+                style="width: 100%;"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="8">
+          <nz-form-item>
+            <nz-form-label nzRequired>Precio Unitario</nz-form-label>
+            <nz-form-control>
+              <nz-input-number
+                [(ngModel)]="currentArticulo.precio_unitario"
+                name="precio_unitario"
+                [nzMin]="0"
+                [nzStep]="0.01"
+                [nzFormatter]="formatterDollar"
+                [nzParser]="parserDollar"
+                style="width: 100%;"
+              ></nz-input-number>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label>Estado</nz-form-label>
+        <nz-form-control>
+          <nz-switch [(ngModel)]="currentArticulo.activo" name="activo"></nz-switch>
+          <span style="margin-left: 8px;">{{ currentArticulo.activo ? 'Activo' : 'Inactivo' }}</span>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>

@@ -1,0 +1,144 @@
+.dashboard-container {
+  padding: 24px;
+  background: #f0f2f5;
+  min-height: calc(100vh - 64px);
+}
+
+.welcome-header {
+  margin-bottom: 32px;
+  
+  h1 {
+    font-size: 32px;
+    font-weight: 600;
+    color: #262626;
+    margin-bottom: 8px;
+  }
+  
+  p {
+    font-size: 16px;
+    color: #8c8c8c;
+    margin: 0;
+  }
+}
+
+.stat-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+  
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-4px);
+  }
+  
+  ::ng-deep .ant-card-body {
+    padding: 24px;
+  }
+}
+
+.stat-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.stat-icon {
+  flex-shrink: 0;
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  font-size: 32px;
+  
+  .employees-card & {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+  }
+  
+  .activities-card & {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+  }
+}
+
+.stat-info {
+  flex: 1;
+  
+  ::ng-deep .ant-statistic-title {
+    font-size: 14px;
+    color: #8c8c8c;
+    margin-bottom: 8px;
+  }
+  
+  ::ng-deep .ant-statistic-content {
+    font-size: 32px;
+    font-weight: 600;
+    color: #262626;
+  }
+}
+
+.stat-description {
+  margin-top: 8px;
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-bottom: 0;
+}
+
+.info-section {
+  margin-top: 24px;
+  
+  ::ng-deep .ant-card {
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.info-content {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  
+  [nz-icon] {
+    font-size: 18px;
+    color: #1890ff;
+  }
+  
+  strong {
+    color: #595959;
+  }
+  
+  span:last-child {
+    color: #262626;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+  
+  .welcome-header h1 {
+    font-size: 24px;
+  }
+  
+  .stat-content {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .info-content {
+    flex-direction: column;
+    gap: 16px;
+  }
+}

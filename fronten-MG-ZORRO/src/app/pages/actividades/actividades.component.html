@@ -1,0 +1,209 @@
+<div class="actividades-container">
+  <div class="header">
+    <h2>Registro de Actividades</h2>
+    <button nz-button nzType="primary" (click)="showModal()">
+      <span nz-icon nzType="plus"></span>
+      Nueva Actividad
+    </button>
+  </div>
+
+  <!-- Filtros de búsqueda -->
+  <div class="filters-container" style="margin-bottom: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px;">
+    <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+      <!-- Búsqueda por descripción -->
+      <div style="flex: 1; min-width: 250px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+          <span nz-icon nzType="search"></span> Buscar en descripción:
+        </label>
+        <input 
+          type="text" 
+          nz-input 
+          placeholder="Buscar en descripción u observaciones..." 
+          [(ngModel)]="searchText"
+          (ngModelChange)="onSearch()"
+        />
+      </div>
+
+      <!-- Fecha desde -->
+      <div style="min-width: 180px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+          <span nz-icon nzType="calendar"></span> Fecha desde:
+        </label>
+        <input 
+          type="date" 
+          nz-input 
+          [(ngModel)]="fechaDesde"
+          (ngModelChange)="onFechaChange()"
+        />
+      </div>
+
+      <!-- Fecha hasta -->
+      <div style="min-width: 180px;">
+        <label style="display: block; margin-bottom: 8px; font-weight: 500;">
+          <span nz-icon nzType="calendar"></span> Fecha hasta:
+        </label>
+        <input 
+          type="date" 
+          nz-input 
+          [(ngModel)]="fechaHasta"
+          (ngModelChange)="onFechaChange()"
+        />
+      </div>
+
+      <!-- Botón limpiar filtros -->
+      <div>
+        <button 
+          nz-button 
+          nzType="default" 
+          (click)="limpiarFiltros()"
+          style="margin-bottom: 0;"
+        >
+          <span nz-icon nzType="clear"></span>
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+
+    <!-- Resumen de resultados -->
+    <div style="margin-top: 12px; font-size: 13px; color: #595959;">
+      <span nz-icon nzType="info-circle"></span>
+      Mostrando <strong>{{ actividades.length }}</strong> actividad(es)
+      <span *ngIf="searchText || fechaDesde || fechaHasta" style="color: #1890ff;">
+        (filtrado)
+      </span>
+    </div>
+  </div>
+
+  <nz-table
+    #actividadesTable
+    [nzData]="actividades"
+    [nzLoading]="loading"
+    [nzPageSize]="10"
+    [nzShowSizeChanger]="true"
+  >
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Empleado</th>
+        <th>Descripción</th>
+        <th>Horas</th>
+        <th>Observaciones</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let actividad of actividadesTable.data">
+        <td>{{ actividad.fecha | date: 'dd/MM/yyyy' }}</td>
+        <td>{{ actividad.nombre && actividad.apellido ? actividad.nombre + ' ' + actividad.apellido : getNombreEmpleado(actividad.empleado_id) }}</td>
+        <td>{{ actividad.descripcion }}</td>
+        <td>{{ actividad.horas }} hrs</td>
+        <td>{{ actividad.observaciones || '-' }}</td>
+        <td>
+          <button nz-button nzType="default" nzSize="small" (click)="showModal(actividad)" style="margin-right: 8px;">
+            <span nz-icon nzType="edit"></span>
+          </button>
+          <button
+            nz-button
+            nzType="primary"
+            nzDanger
+            nzSize="small"
+            nz-popconfirm
+            nzPopconfirmTitle="¿Está seguro de eliminar esta actividad?"
+            nzOkText="Sí"
+            nzCancelText="No"
+            (nzOnConfirm)="eliminarActividad(actividad.id!)"
+          >
+            <span nz-icon nzType="delete"></span>
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </nz-table>
+</div>
+
+<!-- Modal para Crear/Editar Actividad -->
+<nz-modal
+  [(nzVisible)]="isModalVisible"
+  [nzTitle]="isEditMode ? 'Editar Actividad' : 'Nueva Actividad'"
+  [nzWidth]="600"
+  (nzOnCancel)="handleCancel()"
+  (nzOnOk)="handleOk()"
+  [nzOkText]="isEditMode ? 'Actualizar' : 'Registrar'"
+  nzCancelText="Cancelar"
+>
+  <ng-container *nzModalContent>
+    <form nz-form nzLayout="vertical">
+      <div nz-row [nzGutter]="16">
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Empleado</nz-form-label>
+            <nz-form-control>
+              <nz-select
+                [(ngModel)]="currentActividad.empleado_id"
+                name="empleado_id"
+                nzPlaceHolder="Seleccione un empleado"
+                nzShowSearch
+                style="width: 100%;"
+                [nzDisabled]="!puedeSeleccionarEmpleado()"
+              >
+                <nz-option
+                  *ngFor="let empleado of empleados"
+                  [nzValue]="empleado.id!"
+                  [nzLabel]="empleado.nombre + ' ' + empleado.apellido"
+                ></nz-option>
+              </nz-select>
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+        <div nz-col [nzSpan]="12">
+          <nz-form-item>
+            <nz-form-label nzRequired>Fecha</nz-form-label>
+            <nz-form-control>
+              <input nz-input type="date" [(ngModel)]="currentActividad.fecha" name="fecha" />
+            </nz-form-control>
+          </nz-form-item>
+        </div>
+      </div>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Descripción</nz-form-label>
+        <nz-form-control>
+          <textarea
+            nz-input
+            [(ngModel)]="currentActividad.descripcion"
+            name="descripcion"
+            placeholder="Descripción de la actividad realizada"
+            [nzAutosize]="{ minRows: 3, maxRows: 6 }"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label nzRequired>Horas Trabajadas</nz-form-label>
+        <nz-form-control>
+          <nz-input-number
+            [(ngModel)]="currentActividad.horas"
+            name="horas"
+            [nzMin]="0.5"
+            [nzMax]="24"
+            [nzStep]="0.5"
+            style="width: 100%;"
+          ></nz-input-number>
+        </nz-form-control>
+      </nz-form-item>
+
+      <nz-form-item>
+        <nz-form-label>Observaciones</nz-form-label>
+        <nz-form-control>
+          <textarea
+            nz-input
+            [(ngModel)]="currentActividad.observaciones"
+            name="observaciones"
+            placeholder="Observaciones adicionales (opcional)"
+            [nzAutosize]="{ minRows: 2, maxRows: 4 }"
+          ></textarea>
+        </nz-form-control>
+      </nz-form-item>
+    </form>
+  </ng-container>
+</nz-modal>
