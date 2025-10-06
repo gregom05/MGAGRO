@@ -16,18 +16,28 @@ dotenv.config();
 const app = express();
 const PORT = config.port;
 
-// Conectar a la base de datos
-connectDB().then(async () => {
-  console.log('📦 Inicializando tablas en Supabase...');
-  await initializeDB();
-}).catch((error) => {
-  console.error('❌ Error al conectar a la base de datos:', error);
-  process.exit(1);
-});
-
 // Middlewares
 app.use(cors());
 app.use(bodyParser.json());
+
+// Inicializar base de datos solo una vez
+let dbInitialized = false;
+const initDB = async () => {
+  if (!dbInitialized) {
+    try {
+      await connectDB();
+      console.log('📦 Inicializando tablas en Supabase...');
+      await initializeDB();
+      dbInitialized = true;
+      console.log('✅ Base de datos inicializada');
+    } catch (error) {
+      console.error('❌ Error al conectar a la base de datos:', error);
+    }
+  }
+};
+
+// Inicializar DB (no bloqueante)
+initDB();
 
 // Rutas principales
 app.use('/api/auth', authRoutes);
