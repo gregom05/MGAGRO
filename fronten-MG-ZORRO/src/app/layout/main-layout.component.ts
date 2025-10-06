@@ -14,6 +14,7 @@ import { NzDropDownModule } from 'ng-zorro-antd/dropdown';
 import { NzModalModule } from 'ng-zorro-antd/modal';
 import { NzFormModule } from 'ng-zorro-antd/form';
 import { NzInputModule } from 'ng-zorro-antd/input';
+import { API_BASE_URL } from '../services/api.config';
 import { FormsModule } from '@angular/forms';
 import { NzMessageService } from 'ng-zorro-antd/message';
 import { 
@@ -253,7 +254,7 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
 
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      const response = await fetch('http://localhost:3000/api/auth/cambiar-password', {
+      const response = await fetch(`${API_BASE_URL}/auth/cambiar-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -6,6 +6,7 @@ import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { EmpleadosService } from '../../services/empleados.service';
+import { API_BASE_URL } from '../../services/api.config';
 
 @Component({
   selector: 'app-dashboard-empleado',
@@ -64,7 +65,7 @@ export class DashboardEmpleadoComponent implements OnInit {
 
       // Cargar actividades del empleado
       if (this.empleadoId) {
-        const actividadesRes = await fetch('http://localhost:3000/api/actividades', {
+        const actividadesRes = await fetch(`${API_BASE_URL}/actividades`, {
           headers
         });
         const actividadesData = await actividadesRes.json();

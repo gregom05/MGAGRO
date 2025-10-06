@@ -5,6 +5,7 @@ import { NzStatisticModule } from 'ng-zorro-antd/statistic';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { NzIconModule } from 'ng-zorro-antd/icon';
 import { NzSpinModule } from 'ng-zorro-antd/spin';
+import { API_BASE_URL } from '../../services/api.config';
 
 @Component({
   selector: 'app-welcome',
@@ -44,7 +45,7 @@ export class Welcome implements OnInit {
 
       // Obtener empleados activos y sumar sueldos
       console.log('🔄 Cargando empleados...');
-      const empleadosRes = await fetch('http://localhost:3000/api/empleados', {
+      const empleadosRes = await fetch(`${API_BASE_URL}/empleados`, {
         headers
       });
       const empleadosData = await empleadosRes.json();
@@ -65,7 +66,7 @@ export class Welcome implements OnInit {
 
       // Obtener artículos y calcular valor total de stock
       console.log('🔄 Cargando artículos...');
-      const articulosRes = await fetch('http://localhost:3000/api/articulos', {
+      const articulosRes = await fetch(`${API_BASE_URL}/articulos`, {
         headers
       });
       const articulosData = await articulosRes.json();
