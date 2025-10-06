@@ -51,8 +51,13 @@ app.get('/', (req, res) => {
   });
 });
 
-// Levantar el servidor
-app.listen(PORT, () => {
-  console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-  console.log(`📚 Documentación: http://localhost:${PORT}/`);
-});
+// Levantar el servidor (solo en desarrollo local)
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
+    console.log(`📚 Documentación: http://localhost:${PORT}/`);
+  });
+}
+
+// Exportar para Vercel
+export default app;
