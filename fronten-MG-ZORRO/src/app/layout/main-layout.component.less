@@ -206,6 +206,95 @@
   width: 100%;
 }
 
+// ===== RESPONSIVE STYLES =====
+
+// Tablets (768px y abajo)
+@media (max-width: 768px) {
+  .modern-header {
+    padding: 0 16px;
+  }
+  
+  .brand-name {
+    font-size: 18px;
+  }
+  
+  .brand-tagline {
+    display: none;
+  }
+  
+  .user-name {
+    display: none;
+  }
+  
+  .modern-sider {
+    margin-left: -240px;
+    transition: margin-left 0.3s;
+    
+    &.ant-layout-sider-collapsed {
+      margin-left: -80px;
+    }
+  }
+  
+  .inner-layout {
+    margin-left: 0 !important;
+  }
+  
+  .modern-content {
+    padding: 16px;
+  }
+  
+  .content-container {
+    padding: 16px;
+  }
+}
+
+// Móviles (576px y abajo)
+@media (max-width: 576px) {
+  .modern-header {
+    padding: 0 12px;
+    height: 56px;
+  }
+  
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .brand-name {
+    font-size: 16px;
+  }
+  
+  .header-right {
+    gap: 8px;
+  }
+  
+  .header-btn {
+    font-size: 16px;
+    padding: 4px 8px !important;
+  }
+  
+  .modern-sider {
+    top: 56px;
+    height: calc(100vh - 56px);
+  }
+  
+  .inner-layout {
+    margin-top: 56px;
+    min-height: calc(100vh - 56px);
+  }
+  
+  .modern-content {
+    padding: 12px;
+    min-height: calc(100vh - 56px);
+  }
+  
+  .content-container {
+    padding: 12px;
+    min-height: calc(100vh - 80px);
+    border-radius: 8px;
+  }
+}
+
 // User section styles
 .user-section {
   display: flex;

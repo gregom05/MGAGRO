@@ -31,3 +31,120 @@ nz-card {
 
 // @primary-color: #1890ff;
 /* You can add global styles to this file, and also import other style files */
+
+// ===== ESTILOS RESPONSIVE GLOBALES =====
+
+// Asegurar que todo sea responsive por defecto
+* {
+  box-sizing: border-box;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+// Tablas responsive
+.ant-table {
+  @media (max-width: 768px) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    
+    table {
+      min-width: 100%;
+    }
+  }
+}
+
+// Cards responsive
+.ant-card {
+  @media (max-width: 576px) {
+    margin-bottom: 12px;
+    
+    .ant-card-head {
+      padding: 12px;
+      
+      .ant-card-head-title {
+        font-size: 16px;
+      }
+    }
+    
+    .ant-card-body {
+      padding: 12px;
+    }
+  }
+}
+
+// Grids responsive
+.ant-row {
+  @media (max-width: 768px) {
+    margin-left: -8px !important;
+    margin-right: -8px !important;
+    
+    [class*='ant-col'] {
+      padding-left: 8px !important;
+      padding-right: 8px !important;
+    }
+  }
+}
+
+// Botones responsive
+.ant-btn {
+  @media (max-width: 576px) {
+    padding: 4px 12px;
+    font-size: 14px;
+    
+    &.ant-btn-lg {
+      font-size: 16px;
+      padding: 8px 16px;
+    }
+  }
+}
+
+// Modales responsive
+.ant-modal {
+  @media (max-width: 768px) {
+    max-width: calc(100vw - 32px) !important;
+    margin: 16px auto !important;
+    
+    .ant-modal-content {
+      .ant-modal-header {
+        padding: 16px;
+      }
+      
+      .ant-modal-body {
+        padding: 16px;
+      }
+      
+      .ant-modal-footer {
+        padding: 12px 16px;
+      }
+    }
+  }
+}
+
+// Forms responsive
+.ant-form {
+  @media (max-width: 576px) {
+    .ant-form-item {
+      margin-bottom: 16px;
+      
+      .ant-form-item-label {
+        padding-bottom: 4px;
+      }
+    }
+  }
+}
+
+// Estadísticas responsive
+.ant-statistic {
+  @media (max-width: 576px) {
+    .ant-statistic-title {
+      font-size: 14px;
+    }
+    
+    .ant-statistic-content {
+      font-size: 20px;
+    }
+  }
+}
