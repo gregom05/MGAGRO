@@ -3,9 +3,9 @@
   <nz-header class="modern-header">
     <div class="header-left">
       <div class="brand">
-        <img src="assets/logo.png" alt="Logo" class="brand-logo" />
-        <span class="brand-name">MG AGRO</span>
-        <span class="brand-tagline">Sistema de Gestión</span>
+        <img src="assets/logo.png" alt="Logo" class="brand-logo" (click)="toggleSider()" style="cursor:pointer;z-index:1301;" />
+        <span class="brand-name" *ngIf="!isMobile">MG AGRO</span>
+        <span class="brand-tagline" *ngIf="!isMobile">Sistema de Gestión</span>
       </div>
     </div>
     <div class="header-right">
@@ -39,55 +39,61 @@
 
   <nz-layout>
     <!-- Sidebar moderno -->
+    <div *ngIf="isMobile && isSiderMobileOpen" class="sider-mobile-overlay" (click)="toggleSider()" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.2);z-index:1200;"></div>
     <nz-sider 
       nzCollapsible 
       [(nzCollapsed)]="isCollapsed"
-      [nzWidth]="240" 
-      [nzCollapsedWidth]="80"
+      [nzWidth]="isMobile ? 220 : 240" 
+      [nzCollapsedWidth]="isMobile ? 0 : 80"
       class="modern-sider"
+      [ngClass]="{ 'sider-mobile-open': isMobile && isSiderMobileOpen }"
+      [nzBreakpoint]="'md'"
+      [nzCollapsed]="isMobile ? !isSiderMobileOpen : isCollapsed"
+      [nzTrigger]="null"
+      *ngIf="!isMobile || isSiderMobileOpen"
+      [style.position]="'fixed'"
+      [style.top]="isMobile ? '56px' : '64px'"
+      [style.height]="isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)'"
+      [style.zIndex]="1300"
+      [style.background]="'#fff'"
+      [style.boxShadow]="isMobile && isSiderMobileOpen ? '2px 0 16px rgba(0,0,0,0.15)' : '2px 0 8px rgba(0,0,0,0.05)'"
+      [style.transition]="'left 0.3s'"
+      [style.left]="isMobile && isSiderMobileOpen ? '0' : isMobile ? '-220px' : '0'"
+      [style.display]="isMobile ? (isSiderMobileOpen ? 'block' : 'none') : 'block'"
     >
       <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" class="modern-menu">
-        
-        <!-- Inicio -->
-        <li nz-menu-item nzMatchRouter [nzSelected]="false" 
-            [routerLink]="userRol === 'empleado' ? '/dashboard-empleado' : '/welcome'" 
-            routerLinkActive="ant-menu-item-selected">
+        <li nz-menu-item [routerLink]="userRol === 'empleado' ? '/dashboard-empleado' : '/welcome'" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
           <i nz-icon nzType="home" nzTheme="outline"></i>
-          <span>Inicio</span>
+          <span class="menu-text">Inicio</span>
         </li>
-
-        <!-- Recursos Humanos -->
-        <li nz-submenu nzTitle="Recursos Humanos" nzIcon="team">
-          <ul>
-            <!-- Solo admin y gerente pueden ver empleados -->
-            <li *ngIf="puedeVerEmpleados()" nz-menu-item routerLink="/empleados" routerLinkActive="ant-menu-item-selected">
-              <i nz-icon nzType="user" nzTheme="outline"></i>
-              <span>Empleados</span>
-            </li>
-            <li *ngIf="puedeVerActividades()" nz-menu-item routerLink="/actividades" routerLinkActive="ant-menu-item-selected">
-              <i nz-icon nzType="calendar" nzTheme="outline"></i>
-              <span>Actividades</span>
-            </li>
-          </ul>
+        <li *ngIf="puedeVerEmpleados()" nz-menu-item routerLink="/empleados" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
+          <i nz-icon nzType="user" nzTheme="outline"></i>
+          <span class="menu-text">Empleados</span>
         </li>
-
-        <!-- Inventario -->
-        <li nz-submenu nzTitle="Inventario" nzIcon="database">
-          <ul>
-            <li nz-menu-item routerLink="/articulos" routerLinkActive="ant-menu-item-selected">
-              <i nz-icon nzType="inbox" nzTheme="outline"></i>
-              <span>Artículos</span>
-            </li>
-            <li nz-menu-item routerLink="/movimientos" routerLinkActive="ant-menu-item-selected">
-              <i nz-icon nzType="swap" nzTheme="outline"></i>
-              <span>Movimientos</span>
-            </li>
-          </ul>
+        <li *ngIf="puedeVerActividades()" nz-menu-item routerLink="/actividades" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
+          <i nz-icon nzType="calendar" nzTheme="outline"></i>
+          <span class="menu-text">Actividades</span>
         </li>
-
+        <li nz-menu-item routerLink="/articulos" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
+          <i nz-icon nzType="inbox" nzTheme="outline"></i>
+          <span class="menu-text">Artículos</span>
+        </li>
+        <li nz-menu-item routerLink="/movimientos" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
+          <i nz-icon nzType="swap" nzTheme="outline"></i>
+          <span class="menu-text">Movimientos</span>
+        </li>
+        <li *ngIf="userRol === 'admin'" nz-menu-item routerLink="/usuarios" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
+          <i nz-icon nzType="user" nzTheme="outline"></i>
+          <span class="menu-text">Control de Usuario</span>
+        </li>
       </ul>
+      <!-- Trigger para comprimir/expandir solo en desktop -->
+      <button *ngIf="!isMobile" nz-button nzType="default" class="sider-trigger" (click)="isCollapsed = !isCollapsed" style="width:100%;margin-top:12px;">
+        <i nz-icon [nzType]="isCollapsed ? 'menu-unfold' : 'menu-fold'" nzTheme="outline"></i>
+        <span *ngIf="!isCollapsed">Comprimir</span>
+        <span *ngIf="isCollapsed">Expandir</span>
+      </button>
     </nz-sider>
-
     <!-- Contenido principal -->
     <nz-layout class="inner-layout" [class.collapsed]="isCollapsed">
       <nz-content class="modern-content">

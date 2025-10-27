@@ -210,6 +210,9 @@
 
 // Tablets (768px y abajo)
 @media (max-width: 768px) {
+  .modern-menu :deep(.ant-menu-item .menu-text) {
+    display: none !important;
+  }
   .modern-header {
     padding: 0 16px;
   }
@@ -227,12 +230,22 @@
   }
   
   .modern-sider {
-    margin-left: -240px;
-    transition: margin-left 0.3s;
-    
-    &.ant-layout-sider-collapsed {
-      margin-left: -80px;
-    }
+    left: 0 !important;
+    margin-left: 0 !important;
+    width: 220px !important;
+    min-width: 220px !important;
+    max-width: 220px !important;
+    box-shadow: 2px 0 16px rgba(0,0,0,0.15);
+    background: #fff !important;
+    z-index: 1300 !important;
+    display: block !important;
+    transition: left 0.3s, box-shadow 0.3s;
+  }
+  
+  .modern-sider:not(.sider-mobile-open) {
+    left: -220px !important;
+    box-shadow: none !important;
+    display: none !important;
   }
   
   .inner-layout {

@@ -43,47 +43,37 @@ export class Welcome implements OnInit {
         'Authorization': `Bearer ${token}`
       };
 
-      // Obtener empleados activos y sumar sueldos
-      console.log('🔄 Cargando empleados...');
+
       const empleadosRes = await fetch(`${API_BASE_URL}/empleados`, {
         headers
       });
       const empleadosData = await empleadosRes.json();
-      console.log('📊 Datos de empleados recibidos:', empleadosData);
       
       if (empleadosData.success && empleadosData.empleados) {
         const empleadosActivos = empleadosData.empleados.filter((e: any) => e.activo);
         this.cantidadEmpleados = empleadosActivos.length;
-        console.log('👥 Empleados activos:', this.cantidadEmpleados);
         
         this.totalSueldos = empleadosActivos.reduce((sum: number, e: any) => {
           const salario = parseFloat(e.salario) || 0;
-          console.log(`  - ${e.nombre}: $${salario}`);
           return sum + salario;
         }, 0);
-        console.log('💰 Total sueldos:', this.totalSueldos);
       }
 
       // Obtener artículos y calcular valor total de stock
-      console.log('🔄 Cargando artículos...');
       const articulosRes = await fetch(`${API_BASE_URL}/articulos`, {
         headers
       });
       const articulosData = await articulosRes.json();
-      console.log('📊 Datos de artículos recibidos:', articulosData);
       
       if (articulosData.success && articulosData.articulos) {
         this.cantidadArticulos = articulosData.articulos.length;
-        console.log('📦 Total artículos:', this.cantidadArticulos);
         
         this.valorTotalStock = articulosData.articulos.reduce((sum: number, a: any) => {
           const stock = parseFloat(a.stock_actual) || 0;
           const precio = parseFloat(a.precio_unitario) || 0;
           const valorItem = stock * precio;
-          console.log(`  - ${a.nombre}: ${stock} × $${precio} = $${valorItem}`);
           return sum + valorItem;
         }, 0);
-        console.log('💎 Valor total stock:', this.valorTotalStock);
       }
 
     } catch (error) {

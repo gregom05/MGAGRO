@@ -1,6 +1,18 @@
 <div class="dashboard-container">
+
   <div class="welcome-header">
     <h1>¡Bienvenido, {{ nombreUsuario }}!</h1>
+    <div class="quick-access-btns">
+      <button nz-button nzType="primary" nzSize="large" class="big-access-btn" (click)="goTo('actividades')">
+        <span nz-icon nzType="calendar" nzTheme="outline"></span> Ir a Actividades
+      </button>
+      <button nz-button nzType="default" nzSize="large" class="big-access-btn" (click)="goTo('movimientos')">
+        <span nz-icon nzType="swap" nzTheme="outline"></span> Ir a Movimientos
+      </button>
+      <button nz-button nzType="default" nzSize="large" class="big-access-btn" (click)="goTo('articulos')">
+        <span nz-icon nzType="database" nzTheme="outline"></span> Ir a Artículos
+      </button>
+    </div>
     <p>Panel de información general</p>
   </div>
 

@@ -7,6 +7,7 @@ import { NzSpinModule } from 'ng-zorro-antd/spin';
 import { NzGridModule } from 'ng-zorro-antd/grid';
 import { EmpleadosService } from '../../services/empleados.service';
 import { API_BASE_URL } from '../../services/api.config';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-dashboard-empleado',
@@ -31,8 +32,12 @@ export class DashboardEmpleadoComponent implements OnInit {
   today = new Date();
 
   constructor(
-    private empleadosService: EmpleadosService
+    private empleadosService: EmpleadosService,
+    private router: Router
   ) {}
+  goTo(ruta: string): void {
+    this.router.navigate([`/${ruta}`]);
+  }
 
   ngOnInit(): void {
     // Obtener nombre y empleado_id del usuario

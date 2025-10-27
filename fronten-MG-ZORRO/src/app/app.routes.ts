@@ -17,10 +17,11 @@ export const routes: Routes = [
       { path: 'dashboard-empleado', loadComponent: () => import('./pages/dashboard-empleado/dashboard-empleado.component').then(m => m.DashboardEmpleadoComponent) },
       
       // 4 Módulos principales del sistema
-      { path: 'empleados', loadChildren: () => import('./pages/empleados/empleados.routes').then(m => m.EMPLEADOS_ROUTES) },
-      { path: 'actividades', loadChildren: () => import('./pages/actividades/actividades.routes').then(m => m.ACTIVIDADES_ROUTES) },
-      { path: 'articulos', loadChildren: () => import('./pages/articulos/articulos.routes').then(m => m.ARTICULOS_ROUTES) },
-      { path: 'movimientos', loadChildren: () => import('./pages/movimientos/movimientos.routes').then(m => m.MOVIMIENTOS_ROUTES) }
+  { path: 'empleados', loadChildren: () => import('./pages/empleados/empleados.routes').then(m => m.EMPLEADOS_ROUTES) },
+  { path: 'actividades', loadChildren: () => import('./pages/actividades/actividades.routes').then(m => m.ACTIVIDADES_ROUTES) },
+  { path: 'articulos', loadChildren: () => import('./pages/articulos/articulos.routes').then(m => m.ARTICULOS_ROUTES) },
+  { path: 'movimientos', loadChildren: () => import('./pages/movimientos/movimientos.routes').then(m => m.MOVIMIENTOS_ROUTES) },
+  { path: 'usuarios', loadChildren: () => import('./pages/usuarios/usuarios.routes').then(m => m.USUARIOS_ROUTES) }
     ]
   }
 ];

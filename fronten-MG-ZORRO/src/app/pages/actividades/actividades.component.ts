@@ -76,7 +76,6 @@ export class ActividadesComponent implements OnInit {
           const empleadoActual = data.find(emp => emp.user_id === this.userId);
           if (empleadoActual) {
             this.empleadoId = empleadoActual.id || 0;
-            console.log('Empleado ID:', this.empleadoId);
           }
         }
       },
@@ -90,13 +89,12 @@ export class ActividadesComponent implements OnInit {
     this.loading = true;
     this.actividadesService.obtenerActividades().subscribe({
       next: (data) => {
-        // Si es empleado, solo mostrar sus propias actividades
+        // Asegura que data sea un array
+        const actividadesArray = Array.isArray(data) ? data : [];
         if (this.userRol === 'empleado' && this.empleadoId > 0) {
-          this.actividadesOriginales = data.filter(act => act.empleado_id === this.empleadoId);
-          console.log(`Mostrando ${this.actividadesOriginales.length} actividades del empleado`);
+          this.actividadesOriginales = actividadesArray.filter(act => act.empleado_id === this.empleadoId);
         } else {
-          // Admin y gerente ven todas
-          this.actividadesOriginales = data;
+          this.actividadesOriginales = actividadesArray;
         }
         this.actividades = [...this.actividadesOriginales];
         this.aplicarFiltros();

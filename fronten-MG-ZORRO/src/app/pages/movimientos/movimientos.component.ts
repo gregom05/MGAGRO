@@ -198,14 +198,7 @@ export class MovimientosComponent implements OnInit {
       return false;
     }
 
-    // Validar que haya stock suficiente para salidas
-    if (this.currentMovimiento.tipo === 'salida' && this.articuloSeleccionado) {
-      const stockActual = this.articuloSeleccionado.stock_actual || 0;
-      if (this.currentMovimiento.cantidad > stockActual) {
-        this.message.error(`Stock insuficiente. Stock actual: ${stockActual}`);
-        return false;
-      }
-    }
+    // Se permite stock negativo: no validar stock suficiente para salidas
 
     return true;
   }

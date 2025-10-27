@@ -83,6 +83,9 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   guardandoCredenciales = false;
   errorCredenciales = '';
   
+  isMobile = false;
+  isSiderMobileOpen = false;
+
   private subscriptions: Subscription[] = [];
 
   constructor(
@@ -153,9 +156,18 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
         }
       }, 1000);
     }
+
+    this.checkMobile();
+    window.addEventListener('resize', this.checkMobile.bind(this));
+    // Comprimir menú lateral al ingresar al layout, tanto en mobile como desktop
+    this.isCollapsed = true;
+    if (this.isMobile) {
+      this.isSiderMobileOpen = false;
+    }
   }
 
   ngOnDestroy() {
+    window.removeEventListener('resize', this.checkMobile.bind(this));
     this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
@@ -280,6 +292,23 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
       this.errorCredenciales = 'Error al conectar con el servidor';
     } finally {
       this.guardandoCredenciales = false;
+    }
+  }
+
+  checkMobile() {
+    this.isMobile = window.innerWidth <= 768;
+    if (!this.isMobile) {
+      this.isSiderMobileOpen = false;
+    }
+  }
+
+  toggleSider() {
+    this.isSiderMobileOpen = !this.isSiderMobileOpen;
+  }
+
+  onMenuItemClick() {
+    if (this.isMobile) {
+      this.isSiderMobileOpen = false;
     }
   }
 }

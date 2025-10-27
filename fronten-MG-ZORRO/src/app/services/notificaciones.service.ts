@@ -40,7 +40,6 @@ export class NotificacionesService {
     interval(30000).subscribe(() => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       if (user.rol === 'admin') {
-        console.log('🔄 Actualización automática de alertas...');
         this.cargarAlertas();
       }
     });
@@ -51,17 +50,14 @@ export class NotificacionesService {
     
     // Solo admin puede ver alertas
     if (user.rol !== 'admin') {
-      console.log('ℹ️ Usuario no es admin - No se cargan alertas');
       this.alertasSubject.next([]);
       this.contadorSubject.next(0);
       return;
     }
 
-    console.log('📡 Consultando alertas de stock al backend...');
     
     this.http.get<RespuestaStockBajo>(`${API_BASE_URL}/articulos/stock-bajo`).pipe(
       tap(response => {
-        console.log('📦 Respuesta del backend:', response);
         
         if (response.success && response.articulos) {
           // Mapear los artículos al formato de AlertaStock
@@ -76,20 +72,13 @@ export class NotificacionesService {
           
           // Log detallado
           if (response.total > 0) {
-            console.log(`⚠️ ${response.total} alertas encontradas:`);
-            console.log(`  🔴 Críticos: ${response.criticos}`);
-            console.log(`  🟠 Bajos: ${response.bajos}`);
-            console.log(`  🟡 Alertas: ${response.alertas}`);
             alertas.forEach(a => {
-              console.log(`  - ${a.codigo}: ${a.nombre} (Stock: ${a.stock_actual}/${a.stock_minimo})`);
             });
           } else {
-            console.log('✅ No hay alertas de stock');
           }
         } else {
           this.alertasSubject.next([]);
           this.contadorSubject.next(0);
-          console.log('ℹ️ Respuesta vacía del backend');
         }
       })
     ).subscribe({

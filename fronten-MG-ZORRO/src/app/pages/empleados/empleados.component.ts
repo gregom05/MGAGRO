@@ -164,12 +164,6 @@ export class EmpleadosComponent implements OnInit {
         return false;
       }
       
-      // Validar formato de email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(this.currentEmpleado.email)) {
-        this.message.error('El formato del email no es válido');
-        return false;
-      }
       
       if (!this.currentEmpleado.password || !this.currentEmpleado.password.trim()) {
         this.message.error('La contraseña es obligatoria para crear el usuario');

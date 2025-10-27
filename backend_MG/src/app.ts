@@ -7,6 +7,7 @@ import empleadosRoutes from './routes/empleados.routes';
 import actividadesRoutes from './routes/actividades.routes';
 import articulosRoutes from './routes/articulos.routes';
 import movimientosRoutes from './routes/movimientos.routes';
+import usuariosRoutes from './routes/usuarios.routes';
 import { connectDB } from './db/db';
 import { initializeDB } from './db/initDB';
 import config from './config';
@@ -45,6 +46,7 @@ app.use('/api/empleados', empleadosRoutes);
 app.use('/api/actividades', actividadesRoutes);
 app.use('/api/articulos', articulosRoutes);
 app.use('/api/movimientos', movimientosRoutes);
+app.use('/api/usuarios', usuariosRoutes);
 
 // Ruta de bienvenida
 app.get('/', (req, res) => {
@@ -56,7 +58,8 @@ app.get('/', (req, res) => {
       empleados: '/api/empleados',
       actividades: '/api/actividades',
       articulos: '/api/articulos',
-      movimientos: '/api/movimientos'
+  movimientos: '/api/movimientos',
+  usuarios: '/api/usuarios'
     }
   });
 });
