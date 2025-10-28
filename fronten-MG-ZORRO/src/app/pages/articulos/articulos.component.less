@@ -15,4 +15,27 @@
       font-weight: 600;
     }
   }
+
+  // Estilos para paginación en mobile
+  :deep(.ant-pagination) {
+    @media (max-width: 600px) {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      .ant-pagination-item {
+        min-width: 32px;
+        font-size: 16px;
+        margin: 2px;
+      }
+      .ant-pagination-prev,
+      .ant-pagination-next {
+        min-width: 32px;
+        font-size: 16px;
+        margin: 2px;
+      }
+      .ant-pagination-options {
+        display: none !important;
+      }
+    }
+  }
 }

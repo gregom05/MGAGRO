@@ -43,8 +43,8 @@ export class ActividadesService {
     empleado_id?: number;
     fecha_desde?: string;
     fecha_hasta?: string;
-  }): Observable<Actividad[]> {
-    return this.http.get<Actividad[]>(this.apiUrl, { params: params as any });
+  }): Observable<{ actividades: Actividad[] }> {
+    return this.http.get<{ actividades: Actividad[] }>(this.apiUrl, { params: params as any });
   }
 
   // Obtener actividades por empleado

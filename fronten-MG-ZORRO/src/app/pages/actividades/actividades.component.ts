@@ -88,11 +88,11 @@ export class ActividadesComponent implements OnInit {
   cargarActividades(): void {
     this.loading = true;
     this.actividadesService.obtenerActividades().subscribe({
-      next: (data) => {
-        // Asegura que data sea un array
-        const actividadesArray = Array.isArray(data) ? data : [];
+      next: (data: { actividades: any[] }) => {
+        // El backend responde con { actividades: [...] }
+        const actividadesArray: any[] = Array.isArray(data.actividades) ? data.actividades : [];
         if (this.userRol === 'empleado' && this.empleadoId > 0) {
-          this.actividadesOriginales = actividadesArray.filter(act => act.empleado_id === this.empleadoId);
+          this.actividadesOriginales = actividadesArray.filter((act: any) => act.empleado_id === this.empleadoId);
         } else {
           this.actividadesOriginales = actividadesArray;
         }

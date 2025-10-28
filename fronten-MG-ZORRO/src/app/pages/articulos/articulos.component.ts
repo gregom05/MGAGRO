@@ -37,6 +37,32 @@ import { ArticulosService, Articulo } from '../../services/articulos.service';
   styleUrls: ['./articulos.component.less']
 })
 export class ArticulosComponent implements OnInit {
+  // Paginación compacta para mobile
+  currentPage: number = 1;
+  pageSize: number = 10;
+  totalPages: number = 1;
+
+  isMobile(): boolean {
+    return window.innerWidth <= 600;
+  }
+
+  get pagedArticulos(): Articulo[] {
+    if (!this.isMobile()) return this.articulosFiltrados;
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.articulosFiltrados.slice(start, start + this.pageSize);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  prevPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
   articulos: Articulo[] = [];
   articulosFiltrados: Articulo[] = [];
   loading = false;
@@ -72,6 +98,8 @@ export class ArticulosComponent implements OnInit {
         this.articulos = data;
         this.articulosFiltrados = data;
         this.aplicarFiltros();
+        this.totalPages = Math.ceil(this.articulosFiltrados.length / this.pageSize);
+        this.currentPage = 1;
         this.loading = false;
       },
       error: (error) => {
@@ -247,6 +275,8 @@ export class ArticulosComponent implements OnInit {
     }
 
     this.articulosFiltrados = resultados;
+    this.totalPages = Math.ceil(this.articulosFiltrados.length / this.pageSize);
+    this.currentPage = 1;
   }
 
   formatterDollar = (value: number): string => `$ ${value}`;

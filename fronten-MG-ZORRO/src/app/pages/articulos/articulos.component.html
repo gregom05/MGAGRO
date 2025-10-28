@@ -56,10 +56,11 @@
 
   <nz-table
     #articulosTable
-    [nzData]="articulosFiltrados"
+    [nzData]="isMobile() ? pagedArticulos : articulosFiltrados"
     [nzLoading]="loading"
     [nzPageSize]="10"
     [nzShowSizeChanger]="true"
+    [nzShowPagination]="false"
   >
     <thead>
       <tr>
@@ -115,6 +116,15 @@
       </tr>
     </tbody>
   </nz-table>
+
+  <!-- Paginador compacto para mobile -->
+  <div class="custom-pagination" *ngIf="articulosFiltrados.length > 10">
+    <ng-container *ngIf="isMobile()">
+      <button nz-button nzType="default" (click)="prevPage()" [disabled]="currentPage === 1">Anterior</button>
+      <span style="margin: 0 12px; font-weight: 500;">{{ currentPage }} / {{ totalPages }}</span>
+      <button nz-button nzType="default" (click)="nextPage()" [disabled]="currentPage === totalPages">Siguiente</button>
+    </ng-container>
+  </div>
 </div>
 
 <!-- Modal para Crear/Editar Artículo -->
