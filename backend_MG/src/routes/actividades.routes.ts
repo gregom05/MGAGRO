@@ -6,14 +6,14 @@ import {
   obtenerActividadPorId, 
   actualizarActividad, 
   eliminarActividad,
-  obtenerResumenHoras
+  obtenerResumenHectareas
 } from '../controllers/actividades.controller';
 
 const router = Router();
 
 router.post('/', crearActividad);
 router.get('/', obtenerActividades);
-router.get('/resumen', obtenerResumenHoras);
+router.get('/resumen', obtenerResumenHectareas);
 router.get('/empleado/:empleado_id', obtenerActividadesPorEmpleado);
 router.get('/:id', obtenerActividadPorId);
 router.put('/:id', actualizarActividad);

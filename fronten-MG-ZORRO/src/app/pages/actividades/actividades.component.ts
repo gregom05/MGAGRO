@@ -247,8 +247,8 @@ export class ActividadesComponent implements OnInit {
       this.message.error('La descripción es obligatoria');
       return false;
     }
-    if (!this.currentActividad.horas || this.currentActividad.horas <= 0) {
-      this.message.error('Las horas deben ser mayor a 0');
+    if (!this.currentActividad.hectareas || this.currentActividad.hectareas <= 0) {
+      this.message.error('Las hectáreas deben ser mayor a 0');
       return false;
     }
     return true;
@@ -259,7 +259,7 @@ export class ActividadesComponent implements OnInit {
       empleado_id: 0,
       fecha: new Date().toISOString().split('T')[0],
       descripcion: '',
-      horas: 8,
+  hectareas: 8,
       observaciones: ''
     };
   }

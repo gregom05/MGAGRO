@@ -3,16 +3,16 @@ import pool from '../db/db';
 
 // Crear actividad
 export const crearActividad = async (req: Request, res: Response) => {
-  const { empleado_id, fecha, descripcion, horas, observaciones } = req.body;
+  const { empleado_id, fecha, descripcion, hectareas, observaciones } = req.body;
 
   try {
     const queryText = `
-      INSERT INTO Actividades (empleado_id, fecha, descripcion, horas, observaciones) 
-      VALUES ($1, $2, $3, $4, $5) 
-      RETURNING *
+  INSERT INTO Actividades (empleado_id, fecha, descripcion, hectareas, observaciones) 
+  VALUES ($1, $2, $3, $4, $5) 
+  RETURNING *
     `;
     const result = await pool.query(queryText, [
-      empleado_id, fecha, descripcion, horas, observaciones || null
+  empleado_id, fecha, descripcion, hectareas, observaciones || null
     ]);
 
     res.status(201).json(result.rows[0]);
@@ -127,18 +127,18 @@ export const obtenerActividadPorId = async (req: Request, res: Response) => {
 // Actualizar actividad
 export const actualizarActividad = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { fecha, descripcion, horas, observaciones } = req.body;
+  const { fecha, descripcion, hectareas, observaciones } = req.body;
 
   try {
     const queryText = `
       UPDATE Actividades 
-      SET fecha = $1, descripcion = $2, horas = $3, 
+  SET fecha = $1, descripcion = $2, hectareas = $3, 
           observaciones = $4, updatedat = CURRENT_TIMESTAMP
       WHERE id = $5 
       RETURNING *
     `;
     const result = await pool.query(queryText, [
-      fecha, descripcion, horas, observaciones, id
+  fecha, descripcion, hectareas, observaciones, id
     ]);
 
     if (result.rows.length === 0) {
@@ -170,8 +170,8 @@ export const eliminarActividad = async (req: Request, res: Response) => {
   }
 };
 
-// Obtener resumen de horas por empleado
-export const obtenerResumenHoras = async (req: Request, res: Response) => {
+// Obtener resumen de hectareas por empleado
+export const obtenerResumenHectareas = async (req: Request, res: Response) => {
   const { fecha_desde, fecha_hasta } = req.query;
 
   try {
@@ -180,7 +180,7 @@ export const obtenerResumenHoras = async (req: Request, res: Response) => {
         e.id as empleado_id,
         e.nombre,
         e.apellido,
-        SUM(a.horas) as total_horas,
+  SUM(a.hectareas) as total_hectareas,
         COUNT(a.id) as total_actividades
       FROM Empleados e
       LEFT JOIN Actividades a ON e.id = a.empleado_id
@@ -203,7 +203,7 @@ export const obtenerResumenHoras = async (req: Request, res: Response) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error) {
-    console.error('Error al obtener resumen de horas:', error);
-    res.status(500).json({ error: 'Error al obtener resumen de horas' });
+  console.error('Error al obtener resumen de hectareas:', error);
+  res.status(500).json({ error: 'Error al obtener resumen de hectareas' });
   }
 };

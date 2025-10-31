@@ -96,7 +96,7 @@
         <td>{{ actividad.fecha | date: 'dd/MM/yyyy' }}</td>
         <td>{{ actividad.nombre && actividad.apellido ? actividad.nombre + ' ' + actividad.apellido : getNombreEmpleado(actividad.empleado_id) }}</td>
     <td>{{ actividad.descripcion }}</td>
-    <td>{{ actividad.horas }} ha</td>
+  <td>{{ actividad.hectareas }} ha</td>
     <td>{{ actividad.observaciones || '-' }}</td>
         <td>
           <button nz-button nzType="default" nzSize="small" (click)="showModal(actividad)" style="margin-right: 8px;">
@@ -182,8 +182,8 @@
         <nz-form-label nzRequired>Hectareas Trabajadas</nz-form-label>
         <nz-form-control>
           <nz-input-number
-            [(ngModel)]="currentActividad.horas"
-            name="horas"
+            [(ngModel)]="currentActividad.hectareas"
+            name="hectareas"
             style="width: 100%;"
           ></nz-input-number>
         </nz-form-control>

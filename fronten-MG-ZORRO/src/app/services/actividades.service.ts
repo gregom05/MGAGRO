@@ -8,7 +8,7 @@ export interface Actividad {
   empleado_id: number;
   fecha: string;
   descripcion: string;
-  horas: number;
+  hectareas: number;
   observaciones?: string;
   created_at?: string;
   updated_at?: string;
@@ -21,7 +21,7 @@ export interface ResumenActividades {
   empleado_id: number;
   nombre: string;
   apellido: string;
-  total_horas: string;
+  total_hectareas: string;
   total_actividades: string;
 }
 
