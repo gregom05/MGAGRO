@@ -1,23 +1,23 @@
-import { Pool } from 'pg';
-import config from '../config';
+import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// Conexión a Supabase usando la URL completa
-const pool = new Pool({
-  connectionString: config.supabase.dbUrl,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
+// Crear cliente de Supabase
+export const supabase = createClient(
+  process.env.SUPABASE_URL || '',
+  process.env.SUPABASE_ANON_KEY || ''
+);
 
 export const connectDB = async () => {
   try {
-    const client = await pool.connect();
-    console.log('✅ Conexión a Supabase PostgreSQL exitosa');
-    client.release();
+    // Probar conexión consultando una tabla cualquiera
+    const { error } = await supabase.from('users').select('id').limit(1);
+    if (error) throw error;
+    console.log('✅ Conexión a Supabase exitosa');
   } catch (error) {
-    console.error('❌ Error al conectar a Supabase PostgreSQL:', error);
+    console.error('❌ Error al conectar a Supabase:', error);
     throw error;
   }
 };
 
-export default pool;
+export default supabase;

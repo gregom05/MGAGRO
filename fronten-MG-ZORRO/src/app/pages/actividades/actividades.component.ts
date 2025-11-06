@@ -111,13 +111,18 @@ export class ActividadesComponent implements OnInit {
   aplicarFiltros(): void {
     let resultado = [...this.actividadesOriginales];
 
-    // Filtro por texto en descripción
+    // Filtro por texto en descripción, observaciones y nombre/apellido de empleado
     if (this.searchText && this.searchText.trim()) {
       const search = this.searchText.toLowerCase().trim();
-      resultado = resultado.filter(act =>
-        act.descripcion?.toLowerCase().includes(search) ||
-        act.observaciones?.toLowerCase().includes(search)
-      );
+      resultado = resultado.filter(act => {
+        const empleado = this.empleados.find(e => e.id === act.empleado_id);
+        const nombreCompleto = empleado ? `${empleado.nombre} ${empleado.apellido}`.toLowerCase() : '';
+        return (
+          act.descripcion?.toLowerCase().includes(search) ||
+          act.observaciones?.toLowerCase().includes(search) ||
+          nombreCompleto.includes(search)
+        );
+      });
     }
 
     // Filtro por fecha desde
