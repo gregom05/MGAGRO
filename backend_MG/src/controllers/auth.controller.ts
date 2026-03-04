@@ -84,10 +84,12 @@ export const register = async (req: Request, res: Response) => {
     }
 
     // Encriptar password (si usas bcrypt, descomentar)
+    const rolesValidos = ['admin', 'empleado', 'general'];
+    const rolFinal = rolesValidos.includes(rol) ? rol : 'empleado';
     const hashedPassword = password; // Temporal
     const { data, error } = await supabase
       .from('users')
-      .insert([{ email, password: hashedPassword, nombre, rol: rol || 'empleado', activo: true }])
+      .insert([{ email, password: hashedPassword, nombre, rol: rolFinal, activo: true }])
       .select('id, email, nombre, rol, activo, createdat');
     if (error || !data || data.length === 0) return res.status(500).json({ message: 'Error interno del servidor' });
     res.status(201).json({ 

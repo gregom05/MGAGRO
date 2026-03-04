@@ -119,8 +119,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
     this.nombreUsuario = user.nombre || 'Usuario';
     this.userRol = user.rol || 'empleado';
 
-    // Redirigir empleados al dashboard si intentan acceder a welcome
-    if (this.userRol === 'empleado' && this.router.url === '/welcome') {
+    // Redirigir empleados y general al dashboard si intentan acceder a welcome
+    if ((this.userRol === 'empleado' || this.userRol === 'general') && this.router.url === '/welcome') {
       this.router.navigate(['/dashboard-empleado']);
     }
 
@@ -210,8 +210,8 @@ export class MainLayoutComponent implements OnInit, OnDestroy {
   }
 
   puedeVerActividades(): boolean {
-    // Todos pueden ver actividades
-    return true;
+    // General no puede ver actividades
+    return this.userRol !== 'general';
   }
 
   puedeVerMovimientos(): boolean {

@@ -62,7 +62,7 @@
       [style.display]="isMobile ? (isSiderMobileOpen ? 'block' : 'none') : 'block'"
     >
       <ul nz-menu nzMode="inline" [nzInlineCollapsed]="isCollapsed" class="modern-menu">
-        <li nz-menu-item [routerLink]="userRol === 'empleado' ? '/dashboard-empleado' : '/welcome'" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
+        <li nz-menu-item [routerLink]="(userRol === 'empleado' || userRol === 'general') ? '/dashboard-empleado' : '/welcome'" routerLinkActive="ant-menu-item-selected" (click)="onMenuItemClick()">
           <i nz-icon nzType="home" nzTheme="outline"></i>
           <span class="menu-text">Inicio</span>
         </li>

@@ -51,7 +51,7 @@ export class LoginComponent {
           const user = JSON.parse(localStorage.getItem('user') || '{}');
           const userRol = user.rol || 'empleado';
           
-          if (userRol === 'empleado') {
+          if (userRol === 'empleado' || userRol === 'general') {
             this.router.navigate(['/dashboard-empleado']);
           } else {
             this.router.navigate(['/welcome']);

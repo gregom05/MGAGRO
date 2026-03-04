@@ -20,6 +20,18 @@ export const crearMovimiento = async (req: Request & { user?: any }, res: Respon
     if (tipo === 'ajuste' && req.user?.rol !== 'admin') {
       return res.status(403).json({ success: false, error: 'Solo administradores pueden realizar ajustes de inventario' });
     }
+    // Resolver user_id final a guardar en el movimiento:
+    // - empleado: se usa su propio user_id del token automáticamente
+    // - general: debe enviar el empleado seleccionado como user_id o empleado_id en el body
+    // - admin: usa su propio user_id del token
+    let final_user_id = user_id;
+    if (req.user?.rol === 'general') {
+      const empId = req.body.empleado_id || req.body.user_id;
+      if (!empId) {
+        return res.status(400).json({ success: false, error: 'Debe seleccionar un empleado para registrar el movimiento' });
+      }
+      final_user_id = empId;
+    }
     // Obtener el artículo actual con stock_minimo
     const { data: articuloResult } = await supabase
       .from('articulos')
@@ -65,7 +77,7 @@ export const crearMovimiento = async (req: Request & { user?: any }, res: Respon
       .insert([
         {
           articulo_id,
-          user_id,
+          user_id: final_user_id,
           tipo,
           cantidad,
           stock_anterior,
@@ -119,11 +131,17 @@ export const obtenerMovimientos = async (req: Request, res: Response) => {
     const movimientos = await Promise.all((data || []).map(async (m) => {
       const { data: articulo } = await supabase.from('articulos').select('codigo, nombre').eq('id', m.articulo_id).single();
       const { data: usuario } = await supabase.from('users').select('nombre').eq('id', m.user_id).single();
+      let empleado_nombre: string | null = null;
+      if (m.empleado_id) {
+        const { data: emp } = await supabase.from('empleados').select('nombre, apellido').eq('id', m.empleado_id).single();
+        empleado_nombre = emp ? `${emp.nombre} ${emp.apellido}` : null;
+      }
       return {
         ...m,
         codigo: articulo?.codigo,
         articulo_nombre: articulo?.nombre,
-        usuario_nombre: usuario?.nombre
+        usuario_nombre: usuario?.nombre,
+        empleado_nombre
       };
     }));
     res.json(movimientos);

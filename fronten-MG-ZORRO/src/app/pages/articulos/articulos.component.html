@@ -1,7 +1,7 @@
 <div class="articulos-container">
   <div class="header">
     <h2>{{ puedeGestionarArticulos() ? 'Gestión de Artículos / Inventario' : 'Consulta de Inventario' }}</h2>
-    <button *ngIf="puedeGestionarArticulos()" nz-button nzType="primary" (click)="showModal()">
+    <button *ngIf="puedeCrearArticulos()" nz-button nzType="primary" (click)="showModal()">
       <span nz-icon nzType="plus"></span>
       Nuevo Artículo
     </button>
@@ -139,6 +139,29 @@
 >
   <ng-container *nzModalContent>
     <form nz-form nzLayout="vertical">
+
+      <!-- Selector de empleado responsable: solo para rol general -->
+      <div *ngIf="userRol === 'general'" style="background: #fffbe6; border: 1px solid #ffe58f; border-radius: 6px; padding: 12px 16px; margin-bottom: 16px;">
+        <nz-form-item style="margin-bottom: 0;">
+          <nz-form-label nzRequired style="font-weight: 600;">Empleado responsable</nz-form-label>
+          <nz-form-control>
+            <nz-select
+              [(ngModel)]="empleadoSeleccionadoId"
+              name="empleado_responsable"
+              nzPlaceHolder="Seleccione el empleado que realiza la acción"
+              nzShowSearch
+              style="width: 100%;"
+            >
+              <nz-option
+                *ngFor="let emp of empleados"
+                [nzValue]="emp.id!"
+                [nzLabel]="emp.nombre + ' ' + emp.apellido"
+              ></nz-option>
+            </nz-select>
+          </nz-form-control>
+        </nz-form-item>
+      </div>
+
       <div nz-row [nzGutter]="16">
         <div nz-col [nzSpan]="12">
           <nz-form-item>

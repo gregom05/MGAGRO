@@ -16,6 +16,7 @@ import { NzToolTipModule } from 'ng-zorro-antd/tooltip';
 import { NzPopconfirmModule } from 'ng-zorro-antd/popconfirm';
 import { MovimientosService, Movimiento } from '../../services/movimientos.service';
 import { ArticulosService, Articulo } from '../../services/articulos.service';
+import { EmpleadosService, Empleado } from '../../services/empleados.service';
 
 @Component({
   selector: 'app-movimientos',
@@ -79,9 +80,14 @@ export class MovimientosComponent implements OnInit {
   fechaHasta: string = ''; // Filtro fecha hasta
   userRol: string = ''; // Rol del usuario para permisos
 
+  // Para rol general: selector de empleado responsable
+  empleados: Empleado[] = [];
+  empleadoSeleccionadoId: number | null = null;
+
   constructor(
     private movimientosService: MovimientosService,
     private articulosService: ArticulosService,
+    private empleadosService: EmpleadosService,
     private message: NzMessageService
   ) {}
 
@@ -89,14 +95,31 @@ export class MovimientosComponent implements OnInit {
     // Obtener rol del usuario
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userRol = user.rol || 'empleado';
-    
+
+    // Si es general, cargar listado de empleados para el selector
+    if (this.userRol === 'general') {
+      this.cargarEmpleados();
+    }
+
     this.cargarArticulos();
     this.cargarMovimientos();
+  }
+
+  cargarEmpleados(): void {
+    this.empleadosService.obtenerEmpleados(true).subscribe({
+      next: (data) => { this.empleados = data; },
+      error: (err) => console.error('Error al cargar empleados:', err)
+    });
   }
 
   // Solo admin puede eliminar movimientos
   puedeEliminarMovimientos(): boolean {
     return this.userRol === 'admin';
+  }
+
+  // Admin y gerente y general pueden crear movimientos
+  puedeGestionarMovimientos(): boolean {
+    return this.userRol === 'admin' || this.userRol === 'gerente' || this.userRol === 'general';
   }
 
   // Solo admin y gerente pueden usar tipo "ajuste"
@@ -152,6 +175,7 @@ export class MovimientosComponent implements OnInit {
   showModal(): void {
     this.currentMovimiento = this.getEmptyMovimiento();
     this.articuloSeleccionado = undefined;
+    this.empleadoSeleccionadoId = null;
     this.isModalVisible = true;
   }
 
@@ -159,6 +183,7 @@ export class MovimientosComponent implements OnInit {
     this.isModalVisible = false;
     this.currentMovimiento = this.getEmptyMovimiento();
     this.articuloSeleccionado = undefined;
+    this.empleadoSeleccionadoId = null;
   }
 
   onArticuloChange(articulo_id: number): void {
@@ -170,9 +195,22 @@ export class MovimientosComponent implements OnInit {
       return;
     }
 
-    // NO enviar user_id - el backend lo obtiene del token JWT automáticamente
-    // Eliminar user_id si existe para evitar conflictos
-    const { user_id, ...movimientoData } = this.currentMovimiento;
+    let movimientoData: any;
+
+    if (this.userRol === 'general' && this.empleadoSeleccionadoId) {
+      // Rol general: buscar el user_id del empleado seleccionado
+      const empleado = this.empleados.find(e => e.id === this.empleadoSeleccionadoId);
+      const { user_id, ...sinUserId } = this.currentMovimiento;
+      movimientoData = {
+        ...sinUserId,
+        // Enviar user_id del empleado seleccionado para atribuirle el movimiento
+        ...(empleado?.user_id ? { user_id: empleado.user_id } : {})
+      };
+    } else {
+      // Otros roles: el backend toma el user del JWT
+      const { user_id, ...sinUserId } = this.currentMovimiento;
+      movimientoData = sinUserId;
+    }
 
     this.loading = true;
     this.movimientosService.registrarMovimiento(movimientoData).subscribe({
@@ -209,6 +247,11 @@ export class MovimientosComponent implements OnInit {
   }
 
   private validarFormulario(): boolean {
+    // Para rol general, debe seleccionar un empleado responsable
+    if (this.userRol === 'general' && !this.empleadoSeleccionadoId) {
+      this.message.error('Debe seleccionar el empleado responsable');
+      return false;
+    }
     if (!this.currentMovimiento.articulo_id) {
       this.message.error('Debe seleccionar un artículo');
       return false;

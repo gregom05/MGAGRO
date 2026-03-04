@@ -9,8 +9,8 @@ export const noEmpleadoGuard: CanActivateFn = (route, state) => {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const userRol = user.rol || 'empleado';
   
-  // Si es empleado, redirigir al dashboard
-  if (userRol === 'empleado') {
+  // Si es empleado o general, redirigir al dashboard
+  if (userRol === 'empleado' || userRol === 'general') {
     router.navigate(['/dashboard-empleado']);
     return false;
   }

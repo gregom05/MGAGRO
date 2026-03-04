@@ -19,6 +19,10 @@ export class AuthService {
         if (response.success && response.token) {
           localStorage.setItem('token', response.token);
           localStorage.setItem('user', JSON.stringify(response.user));
+          // Guardar rol directamente para acceso rápido sin parsear JSON
+          if (response.user?.rol) {
+            localStorage.setItem('rol', response.user.rol);
+          }
           console.log('✅ Token guardado:', response.token);
           console.log('✅ Usuario guardado:', response.user);
         }
@@ -30,6 +34,14 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     localStorage.removeItem('userEmail');
+    localStorage.removeItem('rol');
+  }
+
+  getRol(): string {
+    const rolDirecto = localStorage.getItem('rol');
+    if (rolDirecto) return rolDirecto;
+    const user = localStorage.getItem('user');
+    return user ? (JSON.parse(user).rol || '') : '';
   }
 
   getUser() {

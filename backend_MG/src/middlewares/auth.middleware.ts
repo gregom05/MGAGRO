@@ -9,7 +9,7 @@ declare global {
         id: number;
         email: string;
         nombre: string;
-        rol: 'admin' | 'empleado';
+        rol: 'admin' | 'empleado' | 'general';
         empleado_id?: number;
       };
     }
@@ -68,6 +68,20 @@ export const soloAdmin = (req: Request, res: Response, next: NextFunction) => {
  */
 export const adminOEmpleado = (req: Request, res: Response, next: NextFunction) => {
   if (req.user?.rol !== 'admin' && req.user?.rol !== 'empleado') {
+    return res.status(403).json({
+      success: false,
+      message: 'Acceso denegado. Permisos insuficientes.'
+    });
+  }
+  next();
+};
+
+/**
+ * Middleware para verificar que el usuario sea admin, empleado o general
+ */
+export const adminEmpleadoOGeneral = (req: Request, res: Response, next: NextFunction) => {
+  const rolesPermitidos = ['admin', 'empleado', 'general'];
+  if (!req.user || !rolesPermitidos.includes(req.user.rol)) {
     return res.status(403).json({
       success: false,
       message: 'Acceso denegado. Permisos insuficientes.'

@@ -6,15 +6,16 @@ import {
   obtenerResumenMovimientos,
   eliminarMovimiento
 } from '../controllers/movimientos.controller';
-import { verificarToken, soloAdmin, adminOEmpleado } from '../middlewares/auth.middleware';
+import { verificarToken, soloAdmin, adminOEmpleado, adminEmpleadoOGeneral } from '../middlewares/auth.middleware';
 
 const router = Router();
 
 // Todas las rutas requieren autenticación
-router.post('/', verificarToken, adminOEmpleado, crearMovimiento);
-router.get('/', verificarToken, adminOEmpleado, obtenerMovimientos);
+// admin, empleado y general pueden crear; solo admin puede eliminar
+router.post('/', verificarToken, adminEmpleadoOGeneral, crearMovimiento);
+router.get('/', verificarToken, adminEmpleadoOGeneral, obtenerMovimientos);
 router.get('/resumen', verificarToken, soloAdmin, obtenerResumenMovimientos);
-router.get('/articulo/:articulo_id', verificarToken, adminOEmpleado, obtenerMovimientosPorArticulo);
+router.get('/articulo/:articulo_id', verificarToken, adminEmpleadoOGeneral, obtenerMovimientosPorArticulo);
 router.delete('/:id', verificarToken, soloAdmin, eliminarMovimiento); // Solo admin puede eliminar
 
 export default router;

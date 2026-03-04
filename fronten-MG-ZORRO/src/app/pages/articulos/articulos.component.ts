@@ -14,6 +14,7 @@ import { NzSwitchModule } from 'ng-zorro-antd/switch';
 import { NzTagModule } from 'ng-zorro-antd/tag';
 import { NzSelectModule } from 'ng-zorro-antd/select';
 import { ArticulosService, Articulo } from '../../services/articulos.service';
+import { EmpleadosService, Empleado } from '../../services/empleados.service';
 
 @Component({
   selector: 'app-articulos',
@@ -73,8 +74,13 @@ export class ArticulosComponent implements OnInit {
   stockFilter: 'todos' | 'bajo' | 'normal' = 'todos';
   userRol: string = ''; // Rol del usuario para permisos
 
+  // Para rol general: selector de empleado responsable
+  empleados: Empleado[] = [];
+  empleadoSeleccionadoId: number | null = null;
+
   constructor(
     private articulosService: ArticulosService,
+    private empleadosService: EmpleadosService,
     private message: NzMessageService
   ) {}
 
@@ -82,11 +88,28 @@ export class ArticulosComponent implements OnInit {
     // Obtener rol del usuario
     const user = JSON.parse(localStorage.getItem('user') || '{}');
     this.userRol = user.rol || 'empleado';
-    
+
+    // Si es general, cargar listado de empleados para el selector
+    if (this.userRol === 'general') {
+      this.cargarEmpleados();
+    }
+
     this.cargarArticulos();
   }
 
-  // Verificar si el usuario puede gestionar artículos (crear/editar/eliminar)
+  cargarEmpleados(): void {
+    this.empleadosService.obtenerEmpleados(true).subscribe({
+      next: (data) => { this.empleados = data; },
+      error: (err) => console.error('Error al cargar empleados:', err)
+    });
+  }
+
+  // Verificar si el usuario puede crear artículos
+  puedeCrearArticulos(): boolean {
+    return this.userRol === 'admin' || this.userRol === 'gerente' || this.userRol === 'general';
+  }
+
+  // Verificar si puede editar/eliminar (solo admin y gerente)
   puedeGestionarArticulos(): boolean {
     return this.userRol === 'admin' || this.userRol === 'gerente';
   }
@@ -124,6 +147,7 @@ export class ArticulosComponent implements OnInit {
   handleCancel(): void {
     this.isModalVisible = false;
     this.currentArticulo = this.getEmptyArticulo();
+    this.empleadoSeleccionadoId = null;
   }
 
   handleOk(): void {
@@ -189,6 +213,11 @@ export class ArticulosComponent implements OnInit {
   }
 
   private validarFormulario(): boolean {
+    // Para rol general, debe seleccionar un empleado responsable
+    if (this.userRol === 'general' && !this.empleadoSeleccionadoId) {
+      this.message.error('Debe seleccionar el empleado responsable');
+      return false;
+    }
     if (!this.currentArticulo.codigo) {
       this.message.error('El código es obligatorio');
       return false;
