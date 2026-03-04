@@ -58,13 +58,13 @@ export const actualizarArticulo = async (req: Request, res: Response) => {
   }
 };
 
-// Eliminar artículo (soft delete)
+// Eliminar artículo (hard delete)
 export const eliminarArticulo = async (req: Request, res: Response) => {
   const { id } = req.params;
   try {
-    const { data, error } = await supabase.from('articulos').update({ activo: false }).eq('id', id).select();
-    if (error || !data || data.length === 0) return res.status(404).json({ error: 'Artículo no encontrado' });
-    res.json({ message: 'Artículo desactivado exitosamente' });
+    const { error } = await supabase.from('articulos').delete().eq('id', id);
+    if (error) return res.status(500).json({ error: error.message || 'Error al eliminar artículo' });
+    res.json({ success: true, message: 'Artículo eliminado exitosamente' });
   } catch (error) {
     console.error('Error al eliminar artículo:', error);
     res.status(500).json({ error: 'Error al eliminar artículo' });

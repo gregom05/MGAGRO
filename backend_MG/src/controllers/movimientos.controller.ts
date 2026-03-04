@@ -200,7 +200,7 @@ export const obtenerResumenMovimientos = async (req: Request, res: Response) => 
   }
 };
 
-// Eliminar movimiento (SOLO ADMIN y NO el último movimiento)
+// Eliminar movimiento (SOLO ADMIN)
 export const eliminarMovimiento = async (req: Request & { user?: any }, res: Response) => {
   const { id } = req.params;
   try {
@@ -217,17 +217,6 @@ export const eliminarMovimiento = async (req: Request & { user?: any }, res: Res
       return res.status(404).json({ success: false, error: 'Movimiento no encontrado' });
     }
     const movimiento = movimientoResult[0];
-    // Verificar que NO sea el último movimiento del artículo
-    const { data: ultimoMovimientoResult } = await supabase
-      .from('movimientosinventario')
-      .select('id')
-      .eq('articulo_id', movimiento.articulo_id)
-      .order('fecha', { ascending: false })
-      .order('id', { ascending: false })
-      .limit(1);
-    if (ultimoMovimientoResult && ultimoMovimientoResult.length > 0 && ultimoMovimientoResult[0].id === parseInt(id)) {
-      return res.status(400).json({ success: false, error: 'No se puede eliminar el último movimiento del artículo. Esto afectaría el stock actual.' });
-    }
     // Eliminar el movimiento
     const { error: deleteError } = await supabase
       .from('movimientosinventario')

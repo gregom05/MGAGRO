@@ -116,7 +116,7 @@ export class ArticulosComponent implements OnInit {
 
   cargarArticulos(): void {
     this.loading = true;
-    this.articulosService.obtenerArticulos().subscribe({
+    this.articulosService.obtenerArticulos({ activo: true }).subscribe({
       next: (data) => {
         this.articulos = data;
         this.articulosFiltrados = data;

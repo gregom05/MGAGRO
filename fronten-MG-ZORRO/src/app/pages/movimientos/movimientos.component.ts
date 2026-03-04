@@ -323,11 +323,6 @@ export class MovimientosComponent implements OnInit {
   }
 
   confirmarEliminar(movimiento: Movimiento): void {
-    if (this.esUltimoMovimiento(movimiento)) {
-      this.message.warning('No se puede eliminar el último movimiento de un artículo');
-      return;
-    }
-
     this.message.loading('Eliminando movimiento...', { nzDuration: 0 });
     
     this.movimientosService.eliminarMovimiento(movimiento.id!).subscribe({
