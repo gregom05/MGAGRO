@@ -412,7 +412,7 @@ export class MovimientosComponent implements OnInit {
     return {
       articulo_id: 0,
       user_id: 1,
-      tipo: 'entrada',
+      tipo: 'salida',
       cantidad: 0,
       motivo: ''
     };
